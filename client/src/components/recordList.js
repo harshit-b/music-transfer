@@ -68,7 +68,7 @@ export default function UserList() {
  // This following section will display the table with the records of individuals.
  return (
    <div>
-     <h3>Record List</h3>
+     <h3>Users List</h3>
      <table className="table table-striped" style={{ marginTop: 20 }}>
        <thead>
          <tr>

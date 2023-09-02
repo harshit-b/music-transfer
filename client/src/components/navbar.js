@@ -1,5 +1,5 @@
 import React from "react";
-import logo from "../../public/logo.png";
+import logo from "../logo.png";
  
 // We import bootstrap to make our application look better.
 import "bootstrap/dist/css/bootstrap.css";
