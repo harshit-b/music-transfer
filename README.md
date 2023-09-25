@@ -20,3 +20,17 @@ cd musictransfer/client
 npm install
 npm start
 ```
+Timmy
+Database management 
+Verdant and Harshit 
+Backend(API calls and functions)
+Michael and Emmanuel
+Front End
+
+Meetings 
+Every Monday and as needed 
+
+
+
+
+
