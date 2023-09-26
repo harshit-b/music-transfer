@@ -11,7 +11,7 @@ Start backend:
 ```
 cd musictransfer/server
 npm install
-npm start
+npm run start
 ```
 
 Start frontend
