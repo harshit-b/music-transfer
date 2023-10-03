@@ -15,9 +15,6 @@ mongoose
   .then(() => console.log("MongoDB is  connected successfully"))
   .catch((err) => console.error(err));
 
-app.listen(PORT, () => {
-  console.log(`Server is listening on port ${PORT}`);
-});
 
 app.use(
   cors({
@@ -31,3 +28,7 @@ app.use(cookieParser());
 app.use(express.json());
 
 app.use("/", authRoute);
+
+app.listen(PORT, () => {
+  console.log(`Server is listening on port ${PORT}`);
+});

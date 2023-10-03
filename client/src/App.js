@@ -6,6 +6,7 @@ import { Route, Routes } from "react-router-dom";
 // We import all the components we need in our app
 import Container from "./components/Container";
 import Home from "./components/Home";
+import SpotifyUserProfile from "./components/SpotifyUserProfile";
  
 const App = () => {
  return (
@@ -14,6 +15,7 @@ const App = () => {
        <Route exact path="/" element={<Home />} />
        <Route path="/login" element={<div className="App cfb"><Container /></div>} />
        <Route path="/signup" element={<div className="App cfb"><Container /></div>} />
+       <Route path="/spotify/userprofile" element={<SpotifyUserProfile />} />
      </Routes>
    </div>
  );

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
+import Spotify from "./Spotify"
 
 const Home = () => {
   const navigate = useNavigate();
@@ -28,6 +29,7 @@ const Home = () => {
     };
     verifyCookie();
   }, [cookies, navigate, removeCookie]);
+  
   const Logout = () => {
     removeCookie("token");
     navigate("/signup");
@@ -40,6 +42,7 @@ const Home = () => {
           Welcome <span>{username}</span>
         </h4>
         <button onClick={Logout}>LOGOUT</button>
+        <Spotify />
       </div>
       <ToastContainer />
     </>
