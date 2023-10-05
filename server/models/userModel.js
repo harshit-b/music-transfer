@@ -19,6 +19,15 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: new Date(),
   },
+  spotifyAccessToken: {
+    type: String,
+  },
+  spotifyRefreshToken: {
+    type: String,
+  },
+  spotifyTokenExpiresIn: {
+    type: Number,
+  }
 });
 
 userSchema.pre("save", async function () {
