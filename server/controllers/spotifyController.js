@@ -7,7 +7,8 @@ const client_secret = "b513d75dc33f4f78be7dbbfa852b13dc"
 
 module.exports.spotifyAuth = async (req, res) => {
     const state = req.query.userId;
-    const scope = 'user-read-private user-read-email';
+    console.log("While logging in" + state)
+    const scope = 'user-read-private user-read-email playlist-read-private';
   
     res.redirect('https://accounts.spotify.com/authorize?' +
       querystring.stringify({
@@ -55,14 +56,11 @@ module.exports.spotifyCallback = async (req, res) => {
   }
 }
 
-module.exports.spotifyUserProfile = async (req, res) => {
+module.exports.spotifyUserPlaylists = async(req,res) => {
   try {
     const userId = req.query.userId;
-    console.log(userId)
     let accessToken = null;
     const user = await User.findOne({_id: userId}).exec();
-    console.log(user)
-    console.log("did not enter the function")
     
     if (user) {
       accessToken = user.spotifyAccessToken;
@@ -70,7 +68,45 @@ module.exports.spotifyUserProfile = async (req, res) => {
         const {accessToken, expiresIn} = refreshToken(user.spotifyRefreshToken)
         await User.findOneAndUpdate({_id: userId}, {spotifyAccessToken : accessToken, spotifyTokenExpiresIn : expiresIn});
       } 
-      console.log("entered this function")
+      // Now you can use `accessToken` to make authorized requests to Spotify's API
+    } else {
+      res.status(500).json({ error: 'Failed to fetch access token' });
+    }
+
+    // Make an API request to fetch the user's profile information
+    const userPlaylistsResponse = await axios.get('https://api.spotify.com/v1/me/playlists', {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+      },
+    });
+
+    if (userPlaylistsResponse.status === 200) {
+      // Extract user profile information
+      const userPlaylists = userPlaylistsResponse.data;
+
+      // Redirect the user to the frontend with user info in query parameters
+      res.json({userPlaylists});
+    } else {
+      res.status(userPlaylistsResponse.status).json({ error: 'Failed to fetch user profile' });
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
+
+module.exports.spotifyUserProfile = async (req, res) => {
+  try {
+    const userId = req.query.userId;
+    let accessToken = null;
+    const user = await User.findOne({_id: userId}).exec();
+    
+    if (user) {
+      accessToken = user.spotifyAccessToken;
+      if (isAccessTokenExpired(user.spotifyTokenExpiresIn)) {
+        const {accessToken, expiresIn} = refreshToken(user.spotifyRefreshToken)
+        await User.findOneAndUpdate({_id: userId}, {spotifyAccessToken : accessToken, spotifyTokenExpiresIn : expiresIn});
+      } 
       // Now you can use `accessToken` to make authorized requests to Spotify's API
     } else {
       res.status(500).json({ error: 'Failed to fetch access token' });
@@ -129,14 +165,3 @@ async function refreshToken(refreshToken) {
     return null;
   }
 }
-
-// // Helper function to generate a random string for the state parameter
-// function generateRandomString(length) {
-//   const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-//   let randomString = '';
-//   for (let i = 0; i < length; i++) {
-//     const randomIndex = Math.floor(Math.random() * charset.length);
-//     randomString += charset[randomIndex];
-//   }
-//   return randomString;
-// }

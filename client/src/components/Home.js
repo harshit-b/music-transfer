@@ -36,6 +36,7 @@ const Home = () => {
     removeCookie("token");
     navigate("/signup");
   };
+  
   return (
     <>
       <div className="home_page">
