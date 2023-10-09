@@ -9,6 +9,7 @@ const Home = () => {
   const navigate = useNavigate();
   const [cookies, removeCookie] = useCookies([]);
   const [username, setUsername] = useState("");
+  const[userId, setUserId] = useState(null);
   useEffect(() => {
     const verifyCookie = async () => {
       if (!cookies.token) {
@@ -19,7 +20,8 @@ const Home = () => {
         {},
         { withCredentials: true }
       );
-      const { status, user } = data;
+      const { status, user, userId } = data;
+      setUserId(userId);
       setUsername(user);
       return status
         ? toast(`Hello ${user}`, {
@@ -34,15 +36,16 @@ const Home = () => {
     removeCookie("token");
     navigate("/signup");
   };
+  
   return (
     <>
       <div className="home_page">
         <h4>
           {" "}
-          Welcome <span>{username}</span>
+          Welcome <span>{username} </span>
         </h4>
+        <Spotify userId={userId}/>
         <button onClick={Logout}>LOGOUT</button>
-        <Spotify />
       </div>
       <ToastContainer />
     </>

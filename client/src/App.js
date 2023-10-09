@@ -15,7 +15,7 @@ const App = () => {
        <Route exact path="/" element={<Home />} />
        <Route path="/login" element={<div className="App cfb"><Container /></div>} />
        <Route path="/signup" element={<div className="App cfb"><Container /></div>} />
-       <Route path="/spotify/userprofile" element={<SpotifyUserProfile />} />
+       <Route path="/spotify/userprofile/:userId" element={<SpotifyUserProfile />} />
      </Routes>
    </div>
  );
