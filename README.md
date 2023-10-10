@@ -2,9 +2,12 @@
 Web App - MERN stack : Transfer music from one music app to another!
 
 ## How To Run
-Create the file `musictransfer/server/.env` with your Atlas URI and the server port:
+Create the file `musictransfer/server/.env` with your MONGO_URL, PORT, TOKEN_KEY:
 ```
-ATLAS_URI=mongodb+srv://harshitbhargava:JN42fLf6ODIDCg8D@music-transfer.vctjgkv.mongodb.net/?retryWrites=true&w=majority
+MONGO_URL = mongodb+srv://harshitbhargava:JN42fLf6ODIDCg8D@music-transfer.vctjgkv.mongodb.net/?retryWrites=true&w=majority
+PORT = 4000
+TOKEN_KEY = secret
+
 ```
 
 Start backend:
