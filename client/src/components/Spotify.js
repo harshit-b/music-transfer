@@ -39,13 +39,13 @@ const Spotify = (props) => {
 
 
     return (
-        <div>
+        <div className='playlist_box'>
             {(userPlaylists && userProfile) ? (
                 <div>
                     <h5>Spotify, {userProfile.display_name}</h5>
                     <h6>Playlists: </h6>
                     {userPlaylists.items.map(playlist => {
-                       return (<div className='playlist_box'><button>{playlist.name}</button> <br/></div> )
+                       return (<div><button>{playlist.name}</button> <br/></div> )
                     })}
                 </div>
             ) : (
