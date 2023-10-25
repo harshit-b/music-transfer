@@ -47,7 +47,7 @@ module.exports.spotifyCallback = async (req, res) => {
       const refreshToken = tokenResponse.data.refresh_token;
       const tokenExpiresIn = Math.floor(Date.now() / 1000) + tokenResponse.data.expires_in; 
       const filter = {_id : userId}
-      const update = {spotifyAccessToken : accessToken, spotifyRefreshToken : refreshToken, spotifyTokenExpiresIn : tokenExpiresIn }
+      const update = {spotifyAccessToken : accessToken, spotifyRefreshToken : refreshToken, spotifyTokenExpiresIn : tokenExpiresIn, spotifyLoggedIn : true }
       //Store Access Token and Refresh Token of user in database
       await User.findOneAndUpdate(filter, update);
       res.redirect(`http://localhost:3000/`)
@@ -57,6 +57,29 @@ module.exports.spotifyCallback = async (req, res) => {
       res.status(tokenResponse.status).json({ error: 'Invalid token' });
     }
   } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
+
+//Function to check if user has already logged in to spotify or not 
+//Input in query - userID
+//userID to fetch accessToken
+module.exports.checkIfLoggedInToSpotify = async(req, res) => {
+  try{
+    const userId = req.query.userId;
+    const user = await User.findOne({_id: userId}).exec();
+    
+    if (user) {
+      if (user.spotifyAccessToken) {
+        res.json({userLoggedIntoSpotify: true})
+      } else {
+        res.json({userLoggedIntoSpotify: false})
+      }
+    } else {
+      res.status(500).json({ error: 'User not Found' });
+    }
+  } catch(error) {
     console.error('Error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }

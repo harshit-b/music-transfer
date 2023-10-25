@@ -126,6 +126,13 @@ input {
     border: 1px solid #035E7B;
 }
 
+.playlist_box {
+  border: 0.1em solid#EEFCF8;
+  border-radius: 1em;
+  border-spacing: 1em;
+  padding: 1em;
+}
+
 .home_page {
     /* height: 100vh;
     width: 100vw; */

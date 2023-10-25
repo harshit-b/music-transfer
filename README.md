@@ -23,6 +23,8 @@ cd musictransfer/client
 npm install
 npm start
 ```
+Can create your own accounts to start testing and developing!
+
 Timmy
 Database management 
 Verdant and Harshit 
