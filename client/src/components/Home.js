@@ -1,3 +1,5 @@
+//Home Page where all playlists of various streaming platforms can be populated 
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
@@ -44,7 +46,9 @@ const Home = () => {
           {" "}
           Welcome <span>{username} </span>
         </h4>
+        {/* Spotify Component */}
         <Spotify userId={userId}/>
+        {/* Add More Components like spotify for other music apps  */}
         <button onClick={Logout}>LOGOUT</button>
       </div>
       <ToastContainer />
