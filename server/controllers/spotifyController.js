@@ -10,7 +10,6 @@ const client_secret = "b513d75dc33f4f78be7dbbfa852b13dc"
 //userID used as the state 
 module.exports.spotifyAuth = async (req, res) => {
     const state = req.query.userId;
-    console.log("While logging in" + state)
     const scope = 'user-read-private user-read-email playlist-read-private';
   
     res.redirect('https://accounts.spotify.com/authorize?' +
@@ -51,7 +50,6 @@ module.exports.spotifyCallback = async (req, res) => {
       //Store Access Token and Refresh Token of user in database
       await User.findOneAndUpdate(filter, update);
       res.redirect(`http://localhost:3000/`)
-      // res.redirect(`http://localhost:3000/spotify/userProfile/${userId}`)
 
     } else {
       res.status(tokenResponse.status).json({ error: 'Invalid token' });
@@ -159,7 +157,6 @@ module.exports.spotifyUserProfile = async (req, res) => {
     if (userProfileResponse.status === 200) {
       // Extract user profile information
       const userProfile = userProfileResponse.data;
-      console.log(userProfile.data)
       // Redirect the user to the frontend with user info in query parameters
       res.json({userProfile});
     } else {

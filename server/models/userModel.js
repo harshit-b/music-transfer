@@ -33,7 +33,14 @@ const userSchema = new mongoose.Schema({
   },
   spotifyLoggedIn: {
     type: Boolean,
-  }
+  },
+  youtubeTokens : {
+    type: Object
+  },
+  youtubeLoggedIn: {
+    type: Boolean,
+  },
+
 });
 
 userSchema.pre("save", async function () {
