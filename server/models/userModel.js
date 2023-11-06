@@ -40,6 +40,9 @@ const userSchema = new mongoose.Schema({
   youtubeLoggedIn: {
     type: Boolean,
   },
+  youtubePlaylistIDs: {
+    type: Array
+  }
 
 });
 

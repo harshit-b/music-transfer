@@ -121,12 +121,40 @@ module.exports.checkIfLoggedInToYoutube = async(req, res) => {
     }
   }
 
-  module.exports.retrievePlaylistData = async(req, res) => {
+  module.exports.youtubePlaylistItemIDs = async (destinationApp, playlistIDs, userId) => {
     try {
-      console.log("Retrieving Playlist Info: ...")
+      console.log("Retrieving Playlist Info: ...", playlistIDs?.length);
+        // getting playlist details!
+        // playlistIDs.map((playlistID) => {
+        // })
+        let tokens = null;
+        const user = await User.findOne({_id: userId}).exec();
+
+        if (user) {
+          tokens = user.youtubeTokens
+          oauth2Client.setCredentials(tokens)
+
+          const response = await youtube.playlistItems.list({
+            auth: oauth2Client,
+            part: ["contentDetails"],
+            playlistId: playlistIDs[0],
+            maxResults: 50,
+          })
+
+          if (response.status === 200) {
+            const playlistItemIDs = response.data.items.map((item) => item.contentDetails.videoId)
+            return ({status: "success", message : playlistItemIDs})
+          } else {
+            return ({status : "failed", messsage : playlistItemIDs})
+          }
+          
+        } else {
+          return ({status : "failed", messsage : "User not found and failed to fetch access token"})
+        }
+
     } catch(error) {
       console.error('Error:', error);
-      res.status(500).json({ error: 'Internal server error' });
+      return ({status : "failed", message : error});
     }
   }
 

@@ -3,6 +3,7 @@ const { createSecretToken } = require("../util/secretToken");
 const bcrypt = require("bcrypt");
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
+const { youtubePlaylistItemIDs: youtubePlaylistData } = require("./youtubeController");
 
 module.exports.Signup = async (req, res, next) => {
   try {
@@ -68,14 +69,27 @@ module.exports.userVerification = (req, res) => {
   })
 }
 
-module.exports.transferPlaylist = (req, res) => {
+module.exports.transferPlaylist = async (req, res) => {
   try {
     console.log("Transfering Playlist Started: ...")
-    const { playlistList } = req.body;
+    const { playlistList, sourceApp, destinationApp, userId } = req.body;
     if(!playlistList) {
       return res.json({message: "No playlist selected :("})
     }
-    console.log(playlistList)
+    switch (sourceApp) {
+      case "Youtube":
+        console.log(sourceApp, " --> ", destinationApp)
+        console.log(playlistList)
+        const {status, message} = await youtubePlaylistData(destinationApp, playlistList, userId)
+        if (status === "success") {
+          const playlistItemIDs = message
+        } else {
+          res.status(500).json({error: message})
+        }
+        break;
+      case "Spotify":
+        console.log(destinationApp, sourceApp)
+    }
     res
       .status(201)
       .json({message: "Transfer Completed!", success: true});

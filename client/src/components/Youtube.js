@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 
@@ -9,7 +8,6 @@ const Youtube = (props) => {
     const [userPlaylists, setUserPlaylists] = useState(null)
     const [userLoggedIntoYoutube, setUserLoggedIntoYoutube] = useState(false);
 
-    const navigate = useNavigate();
     const baseUrl = 'http://localhost:4000';
     const endpoint = '/youtube/login';
     const queryParam = `userId=${props.userId}`;
@@ -81,6 +79,9 @@ const Youtube = (props) => {
             const { data } = await axios.post(
                 "http://localhost:4000/transferPlaylist",
                 {
+                    userId : props.userId,
+                    sourceApp : "Youtube",
+                    destinationApp : "Spotify",
                     playlistList : playlistSelected
                 },
                 {withCredentials: true}
@@ -88,15 +89,15 @@ const Youtube = (props) => {
             const {success, message} = data;
             if (success) {
                 handleSuccess(message);
-                setTimeout(() => {
-                    navigate("/")
-                  }, 1000)
             } else {
                 handleError(message);
             }
         } catch (error) {
             console.log(error)
         }
+        setPlaylistSelected([]);
+        setPlaylistSelectedButton(new Array(playlistSelectedButton.length).fill(false));
+
 
     }
 
