@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const { youtubePlaylistItemIDs: youtubePlaylistData } = require("./youtubeController");
+const YTMusic = require("ytmusic-api").default
 
 module.exports.Signup = async (req, res, next) => {
   try {
@@ -76,16 +77,28 @@ module.exports.transferPlaylist = async (req, res) => {
     if(!playlistList) {
       return res.json({message: "No playlist selected :("})
     }
+
+    //Retrieving Data from source app according to what is needed in destination app to search song and create playlist
     switch (sourceApp) {
       case "Youtube":
         console.log(sourceApp, " --> ", destinationApp)
         console.log(playlistList)
+
+        //Retrieving IDs of videos in youtube, the list is called playlistItemsIDs
         const {status, message} = await youtubePlaylistData(destinationApp, playlistList, userId)
         if (status === "success") {
           const playlistItemIDs = message
+          console.log(playlistItemIDs)
+          const ytmusic = await new YTMusic().initialize()
+          ytmusic.getSong(playlistItemIDs[0]).then(song => {
+              console.log(song.artists, song.name)
+          })
         } else {
           res.status(500).json({error: message})
         }
+
+        //Fetch video metadata which would be needed to find song in spotify
+        // ytmusic.getSong(playlistItemIDs[0]).then(song => console.log(song))
         break;
       case "Spotify":
         console.log(destinationApp, sourceApp)
