@@ -1,15 +1,30 @@
 import React, { useEffect, useState } from 'react'
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const Youtube = (props) => {
+    const [playlistSelected, setPlaylistSelected] = useState([])
+    const [playlistSelectedButton, setPlaylistSelectedButton] = useState([])
     const [userPlaylists, setUserPlaylists] = useState(null)
     const [userLoggedIntoYoutube, setUserLoggedIntoYoutube] = useState(false);
 
+    const navigate = useNavigate();
     const baseUrl = 'http://localhost:4000';
     const endpoint = '/youtube/login';
     const queryParam = `userId=${props.userId}`;
 
     const url = baseUrl + endpoint + '?' + queryParam;
+
+    const handleError = (err) => 
+    toast.error(err, {
+      position: "bottom-left",
+    });
+
+    const handleSuccess = (msg) => 
+    toast.success(msg, {
+      position: "bottom-right",
+    })
 
     const handleLogin = async () => {
         window.location.href = url
@@ -20,7 +35,7 @@ const Youtube = (props) => {
             //API call to backend to check if user has logged into youtube or not
             //response: true or false 
             axios.get(
-                `http://localhost:4000/spotify/userLoggedIntoYoutube?userId=${props.userId}`)
+                `http://localhost:4000/youtube/userLoggedIntoYoutube?userId=${props.userId}`)
                 .then((res) => {
                     setUserLoggedIntoYoutube(res.data.userLoggedIntoYoutube)
                 })
@@ -36,12 +51,54 @@ const Youtube = (props) => {
                 `http://localhost:4000/youtube/playlists?userId=${props.userId}`)
                 .then((res) => {
                     setUserPlaylists(res.data.playlists);
+                    setPlaylistSelectedButton(new Array(res.data.playlists.length).fill(false))
                 })
                 .catch((error) => {
                     console.error('Error fetching user playlist:', error);
                 });
         }
     }, [props.userId, userLoggedIntoYoutube])
+
+    const handlePlaylistSelected = (id, index) => {
+        if (playlistSelected.indexOf(id) === -1) {
+            setPlaylistSelected([...playlistSelected, id])
+            
+        } else {
+            setPlaylistSelected(playlistSelected.filter(playlist => playlist !==id))
+        }
+        const newPlaylistSelectedButton = playlistSelectedButton.map((b, i) => {
+            if (i===index) {
+                return !b
+            } else {
+                return b
+            }
+        })
+        setPlaylistSelectedButton(newPlaylistSelectedButton)
+    }
+
+    const handleSubmit = async() => {
+        try {
+            const { data } = await axios.post(
+                "http://localhost:4000/transferPlaylist",
+                {
+                    playlistList : playlistSelected
+                },
+                {withCredentials: true}
+            );
+            const {success, message} = data;
+            if (success) {
+                handleSuccess(message);
+                setTimeout(() => {
+                    navigate("/")
+                  }, 1000)
+            } else {
+                handleError(message);
+            }
+        } catch (error) {
+            console.log(error)
+        }
+
+    }
 
     return (
         <div className = 'playlist_box'> 
@@ -50,14 +107,15 @@ const Youtube = (props) => {
                     <h5>Youtube</h5>
                     <h6>Playlists: </h6>
                     {userPlaylists.map((playlist, index) => {
-                       return (<div key={index}><button>{playlist.snippet.title}</button> <br/></div> )
+                       return (<div key={index}><button style={{backgroundColor : playlistSelectedButton[index] ? "rgb(103, 255, 73)" : "rgb(32, 114, 59)"}} type="button" onClick={() => handlePlaylistSelected(playlist.id, index)}>{playlist.snippet.title}</button> <br/></div> )
                     })}
+                    <br></br>
+                    <button style={{backgroundColor : "rgb(27, 73, 83)"}} onClick={handleSubmit}> TRANSFER </button>
                 </div>
             ) : (
                 <button onClick={handleLogin}>Login to Youtube</button>
       
             )}
-            
         </div>
     )
 

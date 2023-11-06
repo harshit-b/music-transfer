@@ -21,6 +21,7 @@ var youtube = google.youtube('v3');
 
 const User = require("../models/userModel");
 const axios = require('axios');
+const { Console } = require('node:console');
 
 //Initiate OAuth flow - Spotify
 //Input in the query - userId: ID of the user in mongoDB database
@@ -80,12 +81,14 @@ module.exports.youtubePlaylists = async (req, res) => {
             youtube.playlists.list({
                 auth: oauth2Client,
                 part: ["snippet"],
-                mine: true
+                mine: true,
+                maxResults: 50,
             }, (error, response) => {
                 const playlists = response.data.items
                 if (error) res.status(500).json({error})
                 res.json({playlists})
             })
+
         } else {
             res.status(500).json({ error: 'Failed to fetch access token' });
         }
@@ -117,3 +120,23 @@ module.exports.checkIfLoggedInToYoutube = async(req, res) => {
       res.status(500).json({ error: 'Internal server error' });
     }
   }
+
+  module.exports.retrievePlaylistData = async(req, res) => {
+    try {
+      console.log("Retrieving Playlist Info: ...")
+    } catch(error) {
+      console.error('Error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  // getting playlist details!
+  // youtube.playlistItems.list({
+  //   auth: oauth2Client,
+  //   part: ["snippet"],
+  //   playlistId: playlist.id,
+  //   maxResults: 50,
+  // }, (error, response) => {
+  //   const playlistItems = response.data.items
+  //   if (error) res.status(500).json({error})
+  // })

@@ -52,7 +52,7 @@ const Home = () => {
         <div className="music_apps">
           <Spotify userId={userId}/>
           {/* Add More Components like spotify for other music apps  */}
-          <AmazonMusic userId={userId}/>
+          {/*<AmazonMusic userId={userId}/>*/}
           <Youtube userId={userId} />
         </div>
         <button onClick={Logout}>LOGOUT</button>

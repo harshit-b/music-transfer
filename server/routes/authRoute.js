@@ -2,9 +2,9 @@
 
 const { amazonCallback } = require("../controllers/amazonMusicController");
 const { amazonAuth } = require("../controllers/amazonMusicController");
-const { Signup, Login, userVerification } = require("../controllers/authController");
+const { Signup, Login, userVerification, transferPlaylist } = require("../controllers/authController");
 const { spotifyCallback, spotifyAuth, spotifyUserProfile, spotifyUserPlaylists, checkIfLoggedInToSpotify } = require("../controllers/spotifyController");
-const { youtubeAuth, youtubeCallback, youtubePlaylists, checkIfLoggedInToYoutube } = require("../controllers/youtubeController");
+const { youtubeAuth, youtubeCallback, youtubePlaylists, checkIfLoggedInToYoutube, retrievePlaylistData } = require("../controllers/youtubeController");
 const router = require("express").Router();
 
 //Authentication and user-verification routes
@@ -27,6 +27,9 @@ router.get("/spotify/callback", amazonCallback);
 router.get("/youtube/login", youtubeAuth);
 router.get("/youtube/callback", youtubeCallback);
 router.get("/youtube/playlists", youtubePlaylists)
-router.get("/spotify/userLoggedIntoYoutube", checkIfLoggedInToYoutube);
+router.get("/youtube/userLoggedIntoYoutube", checkIfLoggedInToYoutube);
+
+//Backend Calls!
+router.post("/transferPlaylist", transferPlaylist);
 
 module.exports = router;

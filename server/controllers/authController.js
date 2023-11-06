@@ -67,3 +67,20 @@ module.exports.userVerification = (req, res) => {
     }
   })
 }
+
+module.exports.transferPlaylist = (req, res) => {
+  try {
+    console.log("Transfering Playlist Started: ...")
+    const { playlistList } = req.body;
+    if(!playlistList) {
+      return res.json({message: "No playlist selected :("})
+    }
+    console.log(playlistList)
+    res
+      .status(201)
+      .json({message: "Transfer Completed!", success: true});
+  } catch(error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
