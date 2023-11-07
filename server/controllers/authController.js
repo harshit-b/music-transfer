@@ -3,6 +3,7 @@ const { createSecretToken } = require("../util/secretToken");
 const bcrypt = require("bcrypt");
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
+const { youtubePlaylistItemIDs: youtubePlaylistData, youtubeSongs } = require("./youtubeController");
 
 module.exports.Signup = async (req, res, next) => {
   try {
@@ -66,4 +67,59 @@ module.exports.userVerification = (req, res) => {
       else return res.json({ status: false })
     }
   })
+}
+
+module.exports.transferPlaylist = async (req, res) => {
+  try {
+    let songs = [];
+    console.log("Transfering Playlist Started: ...")
+    const { playlistList, sourceApp, destinationApp, userId } = req.body;
+    if(!playlistList) {
+      return res.json({message: "No playlist selected :("})
+    }
+
+    //Retrieving Data from source app according to what is needed in destination app to search song and create playlist
+    switch (sourceApp) {
+      case "Youtube":
+        console.log(sourceApp, " --> ", destinationApp);
+        console.log(playlistList);
+
+        let status, message;
+
+        //Retrieving IDs of videos in youtube, the list is called playlistItemsIDs
+        ({status, message} = await youtubePlaylistData(destinationApp, playlistList, userId));
+        if (status !== "success") res.status(500).json({error: message});
+        const playlistItemIDs = message;
+
+        //Retrieving song name and artist 
+        ({status, message} = await youtubeSongs(playlistItemIDs));
+        if (status !== "success") res.status(500).json({error: message});
+        songs = message;
+        
+        //Fetch video metadata which would be needed to find song in spotify
+        // ytmusic.getSong(playlistItemIDs[0]).then(song => console.log(song))
+        break;
+
+      case "Spotify":
+        console.log(destinationApp, sourceApp)
+    }
+
+    switch (destinationApp) {
+      case "Youtube":
+        console.log("User selected ", destinationApp, "as the destination app");
+        break;
+      
+      case "Spotify":
+        //TODO: Search Songs, create playlist in spotify
+        console.log(songs);
+    }
+
+
+    res
+      .status(201)
+      .json({message: "Transfer Completed!", success: true});
+  } catch(error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 }

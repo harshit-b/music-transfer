@@ -1,0 +1,125 @@
+import React, { useEffect, useState } from 'react'
+import axios from "axios";
+import { toast } from "react-toastify";
+
+const Youtube = (props) => {
+    const [playlistSelected, setPlaylistSelected] = useState([])
+    const [playlistSelectedButton, setPlaylistSelectedButton] = useState([])
+    const [userPlaylists, setUserPlaylists] = useState(null)
+    const [userLoggedIntoYoutube, setUserLoggedIntoYoutube] = useState(false);
+
+    const baseUrl = 'http://localhost:4000';
+    const endpoint = '/youtube/login';
+    const queryParam = `userId=${props.userId}`;
+
+    const url = baseUrl + endpoint + '?' + queryParam;
+
+    const handleError = (err) => 
+    toast.error(err, {
+      position: "bottom-left",
+    });
+
+    const handleSuccess = (msg) => 
+    toast.success(msg, {
+      position: "bottom-right",
+    })
+
+    const handleLogin = async () => {
+        window.location.href = url
+    }
+
+    useEffect(()=> {
+        if (props.userId != null) {
+            //API call to backend to check if user has logged into youtube or not
+            //response: true or false 
+            axios.get(
+                `http://localhost:4000/youtube/userLoggedIntoYoutube?userId=${props.userId}`)
+                .then((res) => {
+                    setUserLoggedIntoYoutube(res.data.userLoggedIntoYoutube)
+                })
+                .catch((error) => {
+                    console.error("Error determining if user logged into youtube: ", error)
+                });
+        }
+
+        // Fetch playlist info and user profile info only when user has logged into spotify
+        if (userLoggedIntoYoutube) {
+            //API call to backend to fetch playlist info from backend
+            axios.get(
+                `http://localhost:4000/youtube/playlists?userId=${props.userId}`)
+                .then((res) => {
+                    setUserPlaylists(res.data.playlists);
+                    setPlaylistSelectedButton(new Array(res.data.playlists.length).fill(false))
+                })
+                .catch((error) => {
+                    console.error('Error fetching user playlist:', error);
+                });
+        }
+    }, [props.userId, userLoggedIntoYoutube])
+
+    const handlePlaylistSelected = (id, index) => {
+        if (playlistSelected.indexOf(id) === -1) {
+            setPlaylistSelected([...playlistSelected, id])
+            
+        } else {
+            setPlaylistSelected(playlistSelected.filter(playlist => playlist !==id))
+        }
+        const newPlaylistSelectedButton = playlistSelectedButton.map((b, i) => {
+            if (i===index) {
+                return !b
+            } else {
+                return b
+            }
+        })
+        setPlaylistSelectedButton(newPlaylistSelectedButton)
+    }
+
+    const handleSubmit = async() => {
+        try {
+            const { data } = await axios.post(
+                "http://localhost:4000/transferPlaylist",
+                {
+                    userId : props.userId,
+                    sourceApp : "Youtube",
+                    destinationApp : "Spotify",
+                    playlistList : playlistSelected
+                },
+                {withCredentials: true}
+            );
+            const {success, message} = data;
+            if (success) {
+                handleSuccess(message);
+            } else {
+                handleError(message);
+            }
+        } catch (error) {
+            console.log(error)
+        }
+        setPlaylistSelected([]);
+        setPlaylistSelectedButton(new Array(playlistSelectedButton.length).fill(false));
+
+
+    }
+
+    return (
+        <div className = 'playlist_box'> 
+            {(userLoggedIntoYoutube && userPlaylists) ? (
+                <div>
+                    <h5>Youtube</h5>
+                    <h6>Playlists: </h6>
+                    {userPlaylists.map((playlist, index) => {
+                       return (<div key={index}><button style={{backgroundColor : playlistSelectedButton[index] ? "rgb(103, 255, 73)" : "rgb(32, 114, 59)"}} type="button" onClick={() => handlePlaylistSelected(playlist.id, index)}>{playlist.snippet.title}</button> <br/></div> )
+                    })}
+                    <br></br>
+                    <button style={{backgroundColor : "rgb(27, 73, 83)"}} onClick={handleSubmit}> TRANSFER </button>
+                </div>
+            ) : (
+                <button onClick={handleLogin}>Login to Youtube</button>
+      
+            )}
+        </div>
+    )
+
+}
+
+export default Youtube

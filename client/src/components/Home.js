@@ -6,6 +6,8 @@ import { useCookies } from "react-cookie";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import Spotify from "./Spotify"
+import AmazonMusic from "./AmazonMusic";
+import Youtube from "./Youtube";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -40,19 +42,23 @@ const Home = () => {
   };
   
   return (
-    <>
+    <div style={{backgroundColor: 'black'}}>
       <div className="home_page">
         <h4>
           {" "}
           Welcome <span>{username} </span>
         </h4>
         {/* Spotify Component */}
-        <Spotify userId={userId}/>
-        {/* Add More Components like spotify for other music apps  */}
+        <div className="music_apps">
+          <Spotify userId={userId}/>
+          {/* Add More Components like spotify for other music apps  */}
+          {/*<AmazonMusic userId={userId}/>*/}
+          <Youtube userId={userId} />
+        </div>
         <button onClick={Logout}>LOGOUT</button>
       </div>
       <ToastContainer />
-    </>
+    </div>
   );
 };
 

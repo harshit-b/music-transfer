@@ -22,7 +22,6 @@ const Spotify = (props) => {
             axios.get(
                 `http://localhost:4000/spotify/userLoggedIntoSpotify?userId=${props.userId}`)
                 .then((res) => {
-                    console.log(res.data.userLoggedIntoSpotify)
                     setUserLoggedIntoSpotify(res.data.userLoggedIntoSpotify)
                 })
                 .catch((error) => {
@@ -65,12 +64,12 @@ const Spotify = (props) => {
                 <div>
                     <h5>Spotify, {userProfile.display_name}</h5>
                     <h6>Playlists: </h6>
-                    {userPlaylists.items.map(playlist => {
-                       return (<div><button>{playlist.name}</button> <br/></div> )
+                    {userPlaylists.items.map((playlist, index) => {
+                       return (<div key={index}><button>{playlist.name}</button> <br/></div> )
                     })}
                 </div>
             ) : (
-                <button onClick={handleLogin}>Login with Spotify</button>
+                <button onClick={handleLogin}>Login to Spotify</button>
       
             )}
         </div>

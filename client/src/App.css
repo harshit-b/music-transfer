@@ -133,6 +133,12 @@ input {
   padding: 1em;
 }
 
+.music_apps {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+}
+
 .home_page {
     /* height: 100vh;
     width: 100vw; */
