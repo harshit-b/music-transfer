@@ -1,5 +1,6 @@
 const querystring = require('node:querystring')
 const {google} = require('googleapis')
+const YTMusic = require("ytmusic-api").default
 
 /**
      * To use OAuth2 authentication, we need access to a CLIENT_ID, CLIENT_SECRET, AND REDIRECT_URI
@@ -152,6 +153,21 @@ module.exports.checkIfLoggedInToYoutube = async(req, res) => {
           return ({status : "failed", messsage : "User not found and failed to fetch access token"})
         }
 
+    } catch(error) {
+      console.error('Error:', error);
+      return ({status : "failed", message : error});
+    }
+  }
+
+  module.exports.youtubeSongs = async(playlistItemIDs) => {
+    try {
+      let songs = []
+      const ytmusic = await new YTMusic().initialize()
+      for (const i in playlistItemIDs) {
+        const song = await ytmusic.getSong(playlistItemIDs[i])
+        songs.push({name : song.name, artists: song.artists})
+      }
+      return ({status : "success", message : songs})
     } catch(error) {
       console.error('Error:', error);
       return ({status : "failed", message : error});

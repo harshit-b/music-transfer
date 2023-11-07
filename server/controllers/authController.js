@@ -3,8 +3,7 @@ const { createSecretToken } = require("../util/secretToken");
 const bcrypt = require("bcrypt");
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
-const { youtubePlaylistItemIDs: youtubePlaylistData } = require("./youtubeController");
-const YTMusic = require("ytmusic-api").default
+const { youtubePlaylistItemIDs: youtubePlaylistData, youtubeSongs } = require("./youtubeController");
 
 module.exports.Signup = async (req, res, next) => {
   try {
@@ -72,6 +71,7 @@ module.exports.userVerification = (req, res) => {
 
 module.exports.transferPlaylist = async (req, res) => {
   try {
+    let songs = [];
     console.log("Transfering Playlist Started: ...")
     const { playlistList, sourceApp, destinationApp, userId } = req.body;
     if(!playlistList) {
@@ -81,28 +81,40 @@ module.exports.transferPlaylist = async (req, res) => {
     //Retrieving Data from source app according to what is needed in destination app to search song and create playlist
     switch (sourceApp) {
       case "Youtube":
-        console.log(sourceApp, " --> ", destinationApp)
-        console.log(playlistList)
+        console.log(sourceApp, " --> ", destinationApp);
+        console.log(playlistList);
+
+        let status, message;
 
         //Retrieving IDs of videos in youtube, the list is called playlistItemsIDs
-        const {status, message} = await youtubePlaylistData(destinationApp, playlistList, userId)
-        if (status === "success") {
-          const playlistItemIDs = message
-          console.log(playlistItemIDs)
-          const ytmusic = await new YTMusic().initialize()
-          ytmusic.getSong(playlistItemIDs[0]).then(song => {
-              console.log(song.artists, song.name)
-          })
-        } else {
-          res.status(500).json({error: message})
-        }
+        ({status, message} = await youtubePlaylistData(destinationApp, playlistList, userId));
+        if (status !== "success") res.status(500).json({error: message});
+        const playlistItemIDs = message;
 
+        //Retrieving song name and artist 
+        ({status, message} = await youtubeSongs(playlistItemIDs));
+        if (status !== "success") res.status(500).json({error: message});
+        songs = message;
+        
         //Fetch video metadata which would be needed to find song in spotify
         // ytmusic.getSong(playlistItemIDs[0]).then(song => console.log(song))
         break;
+
       case "Spotify":
         console.log(destinationApp, sourceApp)
     }
+
+    switch (destinationApp) {
+      case "Youtube":
+        console.log("User selected ", destinationApp, "as the destination app");
+        break;
+      
+      case "Spotify":
+        //TODO: Search Songs, create playlist in spotify
+        console.log(songs);
+    }
+
+
     res
       .status(201)
       .json({message: "Transfer Completed!", success: true});
