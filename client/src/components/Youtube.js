@@ -76,22 +76,24 @@ const Youtube = (props) => {
 
     const handleSubmit = async() => {
         try {
-            const { data } = await axios.post(
-                "http://localhost:4000/transferPlaylist",
-                {
-                    userId : props.userId,
-                    sourceApp : "Youtube",
-                    destinationApp : "Spotify",
-                    playlistList : playlistSelected
-                },
-                {withCredentials: true}
-            );
-            const {success, message} = data;
-            if (success) {
-                handleSuccess(message);
-            } else {
-                handleError(message);
-            }
+            playlistSelected.map(async(playlist) => {
+                const { data } = await axios.post(
+                    "http://localhost:4000/transferPlaylist",
+                    {
+                        userId : props.userId,
+                        sourceApp : "Youtube",
+                        destinationApp : "Spotify",
+                        playlist : playlist
+                    },
+                    {withCredentials: true}
+                );
+                const {success, message} = data;
+                if (success) {
+                    handleSuccess(message + " " + playlist);
+                } else {
+                    handleError(message + " " + playlist);
+                }
+            })
         } catch (error) {
             console.log(error)
         }

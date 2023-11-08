@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const { youtubePlaylistItemIDs: youtubePlaylistData, youtubeSongs } = require("./youtubeController");
+const { spotifyPlaylistItems } = require("./spotifyController");
 
 module.exports.Signup = async (req, res, next) => {
   try {
@@ -73,21 +74,17 @@ module.exports.transferPlaylist = async (req, res) => {
   try {
     let songs = [];
     console.log("Transfering Playlist Started: ...")
-    const { playlistList, sourceApp, destinationApp, userId } = req.body;
-    if(!playlistList) {
-      return res.json({message: "No playlist selected :("})
-    }
+    const { playlist, sourceApp, destinationApp, userId } = req.body;
 
+    let status, message;
     //Retrieving Data from source app according to what is needed in destination app to search song and create playlist
     switch (sourceApp) {
       case "Youtube":
         console.log(sourceApp, " --> ", destinationApp);
-        console.log(playlistList);
-
-        let status, message;
+        console.log(playlist);
 
         //Retrieving IDs of videos in youtube, the list is called playlistItemsIDs
-        ({status, message} = await youtubePlaylistData(destinationApp, playlistList, userId));
+        ({status, message} = await youtubePlaylistData(playlist, userId));
         if (status !== "success") res.status(500).json({error: message});
         const playlistItemIDs = message;
 
@@ -101,12 +98,18 @@ module.exports.transferPlaylist = async (req, res) => {
         break;
 
       case "Spotify":
-        console.log(destinationApp, sourceApp)
+        console.log(destinationApp, "-->", sourceApp);
+        console.log(playlist);
+
+        ({status, message} = await spotifyPlaylistItems(playlist, userId));
+        if (status !== "success") res.status(500).json({error: message});
+        songs = message
     }
 
     switch (destinationApp) {
       case "Youtube":
         console.log("User selected ", destinationApp, "as the destination app");
+        console.log(songs);
         break;
       
       case "Spotify":

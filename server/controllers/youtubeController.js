@@ -122,9 +122,9 @@ module.exports.checkIfLoggedInToYoutube = async(req, res) => {
     }
   }
 
-  module.exports.youtubePlaylistItemIDs = async (destinationApp, playlistIDs, userId) => {
+  module.exports.youtubePlaylistItemIDs = async (playlist, userId) => {
     try {
-      console.log("Retrieving Playlist Info: ...", playlistIDs?.length);
+      console.log("Retrieving Playlist Info: ...", playlist);
         // getting playlist details!
         // playlistIDs.map((playlistID) => {
         // })
@@ -138,7 +138,7 @@ module.exports.checkIfLoggedInToYoutube = async(req, res) => {
           const response = await youtube.playlistItems.list({
             auth: oauth2Client,
             part: ["contentDetails"],
-            playlistId: playlistIDs[0],
+            playlistId: playlist,
             maxResults: 50,
           })
 
@@ -146,7 +146,7 @@ module.exports.checkIfLoggedInToYoutube = async(req, res) => {
             const playlistItemIDs = response.data.items.map((item) => item.contentDetails.videoId)
             return ({status: "success", message : playlistItemIDs})
           } else {
-            return ({status : "failed", messsage : playlistItemIDs})
+            return ({status : "failed", messsage : "Could not fetch playlist list"})
           }
           
         } else {

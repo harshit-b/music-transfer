@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import axios from "axios";
+import { toast } from "react-toastify";
 
 // userId: ID of the user in our database that has logged in 
 // userID is sent into the component by props
 const Spotify = (props) => {
+    const [playlistSelected, setPlaylistSelected] = useState([])
+    const [playlistSelectedButton, setPlaylistSelectedButton] = useState([])
     const [userLoggedIntoSpotify, setUserLoggedIntoSpotify] = useState(false);
     const [userProfile, setUserProfile] = useState(null);
     const [userPlaylists, setUserPlaylists] = useState(null);
@@ -13,6 +16,60 @@ const Spotify = (props) => {
     const queryParam = `userId=${props.userId}`;
 
     const url = baseUrl + endpoint + '?' + queryParam;
+
+    const handleError = (err) => 
+    toast.error(err, {
+      position: "bottom-left",
+    });
+
+    const handleSuccess = (msg) => 
+    toast.success(msg, {
+      position: "bottom-right",
+    })
+
+    const handlePlaylistSelected = (id, index) => {
+        if (playlistSelected.indexOf(id) === -1) {
+            setPlaylistSelected([...playlistSelected, id])
+            
+        } else {
+            setPlaylistSelected(playlistSelected.filter(playlist => playlist !==id))
+        }
+        const newPlaylistSelectedButton = playlistSelectedButton.map((b, i) => {
+            if (i===index) {
+                return !b
+            } else {
+                return b
+            }
+        })
+        setPlaylistSelectedButton(newPlaylistSelectedButton)
+    }
+
+    const handleSubmit = async() => {
+        try {
+            playlistSelected.map(async (playlist) => {
+                const { data } = await axios.post(
+                    "http://localhost:4000/transferPlaylist",
+                    {
+                        userId : props.userId,
+                        sourceApp : "Spotify",
+                        destinationApp : "Youtube",
+                        playlist : playlist
+                    },
+                    {withCredentials: true}
+                );
+                const {success, message} = data;
+                if (success) {
+                    handleSuccess(message + " " + playlist);
+                } else {
+                    handleError(message + " " + playlist);
+                }
+            })
+        } catch (error) {
+            console.log(error)
+        }
+        setPlaylistSelected([]);
+        setPlaylistSelectedButton(new Array(playlistSelectedButton.length).fill(false));
+    }
 
     //TODO: Harshit - try to do all in one api call
     useEffect(() => {
@@ -35,6 +92,7 @@ const Spotify = (props) => {
                 `http://localhost:4000/spotify/userPlaylists?userId=${props.userId}`)
                 .then((res) => {
                     setUserPlaylists(res.data.userPlaylists);
+                    setPlaylistSelectedButton(new Array(res.data.userPlaylists.items.length).fill(false))
                 })
                 .catch((error) => {
                     console.error('Error fetching user playlist:', error);
@@ -65,8 +123,10 @@ const Spotify = (props) => {
                     <h5>Spotify, {userProfile.display_name}</h5>
                     <h6>Playlists: </h6>
                     {userPlaylists.items.map((playlist, index) => {
-                       return (<div key={index}><button>{playlist.name}</button> <br/></div> )
+                       return (<div key={index}><button style={{backgroundColor : playlistSelectedButton[index] ? "rgb(103, 255, 73)" : "rgb(32, 114, 59)"}} type="button" onClick={() => handlePlaylistSelected(playlist.id, index)}>{playlist.name}</button> <br/></div> )
                     })}
+                    <br></br>
+                    <button style={{backgroundColor : "rgb(27, 73, 83)"}} onClick={handleSubmit}> TRANSFER </button>
                 </div>
             ) : (
                 <button onClick={handleLogin}>Login to Spotify</button>
