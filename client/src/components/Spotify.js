@@ -27,9 +27,9 @@ const Spotify = (props) => {
       position: "bottom-right",
     })
 
-    const handlePlaylistSelected = (id, index) => {
+    const handlePlaylistSelected = (id, name, index) => {
         if (playlistSelected.indexOf(id) === -1) {
-            setPlaylistSelected([...playlistSelected, id])
+            setPlaylistSelected([...playlistSelected, {playlistId: id, playlistName: name}])
             
         } else {
             setPlaylistSelected(playlistSelected.filter(playlist => playlist !==id))
@@ -53,7 +53,8 @@ const Spotify = (props) => {
                         userId : props.userId,
                         sourceApp : "Spotify",
                         destinationApp : "Youtube",
-                        playlist : playlist
+                        playlist : playlist.playlistId,
+                        name: playlist.playlistName
                     },
                     {withCredentials: true}
                 );
@@ -123,7 +124,7 @@ const Spotify = (props) => {
                     <h5>Spotify, {userProfile.display_name}</h5>
                     <h6>Playlists: </h6>
                     {userPlaylists.items.map((playlist, index) => {
-                       return (<div key={index}><button style={{backgroundColor : playlistSelectedButton[index] ? "rgb(103, 255, 73)" : "rgb(32, 114, 59)"}} type="button" onClick={() => handlePlaylistSelected(playlist.id, index)}>{playlist.name}</button> <br/></div> )
+                       return (<div key={index}><button style={{backgroundColor : playlistSelectedButton[index] ? "rgb(103, 255, 73)" : "rgb(32, 114, 59)"}} type="button" onClick={() => handlePlaylistSelected(playlist.id, playlist.name, index)}>{playlist.name}</button> <br/></div> )
                     })}
                     <br></br>
                     <button style={{backgroundColor : "rgb(27, 73, 83)"}} onClick={handleSubmit}> TRANSFER </button>
