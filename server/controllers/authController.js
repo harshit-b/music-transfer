@@ -3,7 +3,8 @@ const { createSecretToken } = require("../util/secretToken");
 const bcrypt = require("bcrypt");
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
-const { youtubePlaylistItemIDs: youtubePlaylistData, youtubeSongs } = require("./youtubeController");
+const { youtubePlaylistItemIDs: youtubePlaylistData, youtubeSongs, youtubeSearchSongs, youtubeCreatePlaylist } = require("./youtubeController");
+const { spotifyPlaylistItems } = require("./spotifyController");
 
 module.exports.Signup = async (req, res, next) => {
   try {
@@ -73,21 +74,21 @@ module.exports.transferPlaylist = async (req, res) => {
   try {
     let songs = [];
     console.log("Transfering Playlist Started: ...")
-    const { playlistList, sourceApp, destinationApp, userId } = req.body;
-    if(!playlistList) {
-      return res.json({message: "No playlist selected :("})
-    }
+    const { playlist, sourceApp, destinationApp, userId, name } = req.body;
 
+    const user = await User.findOne({_id: userId}).exec();
+    if (user.playlistsTransferred.includes(playlist)) {
+      res.status(201).json({message: (name + "Playlist already transferred!"), success: true})
+      return 
+    }
+    let status, message;
     //Retrieving Data from source app according to what is needed in destination app to search song and create playlist
     switch (sourceApp) {
       case "Youtube":
         console.log(sourceApp, " --> ", destinationApp);
-        console.log(playlistList);
-
-        let status, message;
 
         //Retrieving IDs of videos in youtube, the list is called playlistItemsIDs
-        ({status, message} = await youtubePlaylistData(destinationApp, playlistList, userId));
+        ({status, message} = await youtubePlaylistData(playlist, userId));
         if (status !== "success") res.status(500).json({error: message});
         const playlistItemIDs = message;
 
@@ -101,12 +102,21 @@ module.exports.transferPlaylist = async (req, res) => {
         break;
 
       case "Spotify":
-        console.log(destinationApp, sourceApp)
+        console.log(destinationApp, "-->", sourceApp);
+
+        ({status, message} = await spotifyPlaylistItems(playlist, userId));
+        if (status !== "success") res.status(500).json({error: message});
+        songs = message
     }
 
     switch (destinationApp) {
       case "Youtube":
         console.log("User selected ", destinationApp, "as the destination app");
+        const songIds = await youtubeSearchSongs(songs);
+
+        ({status, message} = await youtubeCreatePlaylist(songIds, userId, name))
+        if (status !== "success") res.status(500).json({error: message});
+
         break;
       
       case "Spotify":
@@ -114,10 +124,12 @@ module.exports.transferPlaylist = async (req, res) => {
         console.log(songs);
     }
 
-
+    const filter = {_id : userId}
+    const newPlaylistsTransferred = {playlistsTransferred : [...user.playlistsTransferred, playlist]}
+    await User.findOneAndUpdate(filter, newPlaylistsTransferred)
     res
       .status(201)
-      .json({message: "Transfer Completed!", success: true});
+      .json({message: ("Transfer Completed for" + name + "!"), success: true});
   } catch(error) {
     console.error('Error:', error);
     res.status(500).json({ error: 'Internal server error' });

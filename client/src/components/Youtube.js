@@ -57,10 +57,9 @@ const Youtube = (props) => {
         }
     }, [props.userId, userLoggedIntoYoutube])
 
-    const handlePlaylistSelected = (id, index) => {
+    const handlePlaylistSelected = (id, name, index) => {
         if (playlistSelected.indexOf(id) === -1) {
-            setPlaylistSelected([...playlistSelected, id])
-            
+            setPlaylistSelected([...playlistSelected, {playlistId: id, playlistName: name}])
         } else {
             setPlaylistSelected(playlistSelected.filter(playlist => playlist !==id))
         }
@@ -76,29 +75,30 @@ const Youtube = (props) => {
 
     const handleSubmit = async() => {
         try {
-            const { data } = await axios.post(
-                "http://localhost:4000/transferPlaylist",
-                {
-                    userId : props.userId,
-                    sourceApp : "Youtube",
-                    destinationApp : "Spotify",
-                    playlistList : playlistSelected
-                },
-                {withCredentials: true}
-            );
-            const {success, message} = data;
-            if (success) {
-                handleSuccess(message);
-            } else {
-                handleError(message);
-            }
+            playlistSelected.map(async(playlist) => {
+                const { data } = await axios.post(
+                    "http://localhost:4000/transferPlaylist",
+                    {
+                        userId : props.userId,
+                        sourceApp : "Youtube",
+                        destinationApp : "Spotify",
+                        playlist : playlist.playlistId,
+                        name: playlist.playlistName
+                    },
+                    {withCredentials: true}
+                );
+                const {success, message} = data;
+                if (success) {
+                    handleSuccess(message + " " + playlist);
+                } else {
+                    handleError(message + " " + playlist);
+                }
+            })
         } catch (error) {
             console.log(error)
         }
         setPlaylistSelected([]);
         setPlaylistSelectedButton(new Array(playlistSelectedButton.length).fill(false));
-
-
     }
 
     return (
@@ -108,7 +108,7 @@ const Youtube = (props) => {
                     <h5>Youtube</h5>
                     <h6>Playlists: </h6>
                     {userPlaylists.map((playlist, index) => {
-                       return (<div key={index}><button style={{backgroundColor : playlistSelectedButton[index] ? "rgb(103, 255, 73)" : "rgb(32, 114, 59)"}} type="button" onClick={() => handlePlaylistSelected(playlist.id, index)}>{playlist.snippet.title}</button> <br/></div> )
+                       return (<div key={index}><button style={{backgroundColor : playlistSelectedButton[index] ? "rgb(103, 255, 73)" : "rgb(32, 114, 59)"}} type="button" onClick={() => handlePlaylistSelected(playlist.id, playlist.snippet.title, index)}>{playlist.snippet.title}</button> <br/></div> )
                     })}
                     <br></br>
                     <button style={{backgroundColor : "rgb(27, 73, 83)"}} onClick={handleSubmit}> TRANSFER </button>

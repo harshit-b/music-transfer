@@ -168,6 +168,49 @@ module.exports.spotifyUserProfile = async (req, res) => {
   }
 }
 
+//Function to fetch songs of the playlist
+//Input: playlist ID
+//userId to fetch access token
+//Output: track name, artist name, album name
+module.exports.spotifyPlaylistItems = async(playlistID, userId) => {
+  try {
+    let accessToken = null;
+    const user = await User.findOne({_id: userId}).exec();
+
+    if (user) {
+      accessToken = user.spotifyAccessToken;
+      if (isAccessTokenExpired(user.spotifyTokenExpiresIn)) {
+        const {accessToken, expiresIn} = refreshToken(user.spotifyRefreshToken)
+        await User.findOneAndUpdate({_id: userId}, {spotifyAccessToken : accessToken, spotifyTokenExpiresIn : expiresIn});
+      } 
+      // Now you can use `accessToken` to make authorized requests to Spotify's API
+    } else {
+      return({status: "failed", message: "User not found and failed to fetch access token"});
+    }
+
+    // Make an API request to fetch the user's profile information
+    const playlistItems = await axios.get(`https://api.spotify.com/v1/playlists/${playlistID}/tracks`, {
+      params: {
+        fields: "items(track(name, album(name), artists(name)))",
+        limit: 50,
+      },
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+      },
+    });
+
+    if (playlistItems.status === 200) {
+      return({status: "success", message: playlistItems.data.items})
+    } else {
+      return({status: "failed", message: "Failed to fetch playlist items"})
+    }
+
+  } catch(error) {
+    console.error('Error:', error);
+    return ({status : "failed", message : error});
+  }
+}
+
 //function to check if access token has expired or not
 //Logic: while authenticating user also store the time when access token will expire, 
 //        if current time exceeds time stored in database, then token expired

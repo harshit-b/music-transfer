@@ -23,13 +23,13 @@ const userSchema = new mongoose.Schema({
     default: new Date(),
   },
   spotifyAccessToken: {
-    type: String,
+    type: String
   },
   spotifyRefreshToken: {
-    type: String,
+    type: String
   },
   spotifyTokenExpiresIn: {
-    type: Number,
+    type: Number
   },
   spotifyLoggedIn: {
     type: Boolean,
@@ -38,9 +38,15 @@ const userSchema = new mongoose.Schema({
     type: Object
   },
   youtubeLoggedIn: {
-    type: Boolean,
+    type: Boolean
   },
   youtubePlaylistIDs: {
+    type: Array
+  },
+  spotifyPlaylistIDs: {
+    type: Array
+  },
+  playlistsTransferred: {
     type: Array
   }
 
