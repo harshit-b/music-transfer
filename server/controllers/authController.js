@@ -4,7 +4,7 @@ const bcrypt = require("bcrypt");
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const { youtubePlaylistItemIDs: youtubePlaylistData, youtubeSongs, youtubeSearchSongs, youtubeCreatePlaylist } = require("./youtubeController");
-const { spotifyPlaylistItems } = require("./spotifyController");
+const { spotifyPlaylistItems, spotifySeacrhSong, spotifyCreatePlaylist } = require("./spotifyController");
 
 module.exports.Signup = async (req, res, next) => {
   try {
@@ -73,15 +73,19 @@ module.exports.userVerification = (req, res) => {
 module.exports.transferPlaylist = async (req, res) => {
   try {
     let songs = [];
+    let songIds = [];
     console.log("Transfering Playlist Started: ...")
     const { playlist, sourceApp, destinationApp, userId, name } = req.body;
 
     const user = await User.findOne({_id: userId}).exec();
+
     if (user.playlistsTransferred.includes(playlist)) {
       res.status(201).json({message: (name + "Playlist already transferred!"), success: true})
       return 
     }
+
     let status, message;
+
     //Retrieving Data from source app according to what is needed in destination app to search song and create playlist
     switch (sourceApp) {
       case "Youtube":
@@ -112,7 +116,7 @@ module.exports.transferPlaylist = async (req, res) => {
     switch (destinationApp) {
       case "Youtube":
         console.log("User selected ", destinationApp, "as the destination app");
-        const songIds = await youtubeSearchSongs(songs);
+        songIds = await youtubeSearchSongs(songs);
 
         ({status, message} = await youtubeCreatePlaylist(songIds, userId, name))
         if (status !== "success") res.status(500).json({error: message});
@@ -121,12 +125,21 @@ module.exports.transferPlaylist = async (req, res) => {
       
       case "Spotify":
         //TODO: Search Songs, create playlist in spotify
-        console.log(songs);
+        console.log("User selected ", destinationApp, "as the destination app");
+        ({status, message} = await spotifySeacrhSong(songs, userId));
+        if (status !== "success") res.status(500).json({error: message});
+        songIds = message;
+        console.log(songIds);
+        
+        ({status, message} = await spotifyCreatePlaylist(songIds, userId, name));
+        if (status !== "success") res.status(500).json({error: message});
     }
 
-    const filter = {_id : userId}
-    const newPlaylistsTransferred = {playlistsTransferred : [...user.playlistsTransferred, playlist]}
-    await User.findOneAndUpdate(filter, newPlaylistsTransferred)
+    // const filter = {_id : userId}
+    // // const playlistsTransferred = user.playlistsTransferred.filter((item) => { item!= playlist })
+    // const newPlaylistsTransferred = {playlistsTransferred : [...user.playlistsTransferred, playlist]}
+    // // await User.findOneAndUpdate(filter, playlistsTransferred)
+    // await User.findOneAndUpdate(filter, newPlaylistsTransferred)
     res
       .status(201)
       .json({message: ("Transfer Completed for" + name + "!"), success: true});

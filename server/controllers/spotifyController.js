@@ -10,7 +10,7 @@ const client_secret = "b513d75dc33f4f78be7dbbfa852b13dc"
 //userID used as the state 
 module.exports.spotifyAuth = async (req, res) => {
     const state = req.query.userId;
-    const scope = 'user-read-private user-read-email playlist-read-private';
+    const scope = 'user-read-private user-read-email playlist-read-private playlist-modify-public playlist-modify-private';
   
     res.redirect('https://accounts.spotify.com/authorize?' +
       querystring.stringify({
@@ -204,6 +204,104 @@ module.exports.spotifyPlaylistItems = async(playlistID, userId) => {
     } else {
       return({status: "failed", message: "Failed to fetch playlist items"})
     }
+
+  } catch(error) {
+    console.error('Error:', error);
+    return ({status : "failed", message : error});
+  }
+}
+
+//Function to fetch songs of the playlist
+//Input: playlist ID
+//userId to fetch access token
+//Output: track name, artist name, album name
+module.exports.spotifySeacrhSong = async(songs, userId) => {
+  try {
+    let songIds = []
+
+    let accessToken = null;
+    const user = await User.findOne({_id: userId}).exec();
+
+    if (user) {
+      accessToken = user.spotifyAccessToken;
+      if (isAccessTokenExpired(user.spotifyTokenExpiresIn)) {
+        const {accessToken, expiresIn} = refreshToken(user.spotifyRefreshToken)
+        await User.findOneAndUpdate({_id: userId}, {spotifyAccessToken : accessToken, spotifyTokenExpiresIn : expiresIn});
+      } 
+      // Now you can use `accessToken` to make authorized requests to Spotify's API
+    } else {
+      return({status: "failed", message: "User not found and failed to fetch access token"});
+    }
+
+    for (const i in songs) {
+      const searchQuery = "track%3A" + songs[i].name + "%2520artist%3A" + songs[i].artists[0].name
+
+      // Make an API request to fetch the songId of song
+      const response = await axios.get('https://api.spotify.com/v1/search', {
+        params: {
+          q: searchQuery,
+          type: 'track',
+          limit: 1,
+        },
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        }
+      });
+
+      if (response.status === 200) {
+        songIds.push(response.data.tracks.items[0].id)
+      } else {
+        return({status: "failed", message: "Failed to fetch ID of the song in spotify"})
+      }
+    }
+    return ({status: "success", message: songIds});
+  } catch(error) {
+    console.error('Error:', error);
+    return ({status : "failed", message : error});
+  }
+}
+
+module.exports.spotifyCreatePlaylist = async (songIds, userId, name) => {
+  try {
+    let accessToken = null;
+    let playlistID;
+    const user = await User.findOne({_id: userId}).exec();
+
+    if (user) {
+      accessToken = user.spotifyAccessToken;
+      if (isAccessTokenExpired(user.spotifyTokenExpiresIn)) {
+        const {accessToken, expiresIn} = refreshToken(user.spotifyRefreshToken)
+        await User.findOneAndUpdate({_id: userId}, {spotifyAccessToken : accessToken, spotifyTokenExpiresIn : expiresIn});
+      } 
+      // Now you can use `accessToken` to make authorized requests to Spotify's API
+    } else {
+      return({status: "failed", message: "User not found and failed to fetch access token"});
+    }
+
+    //Make API request to create a playlist 
+    const playlistIdResponse = await axios.post('https://api.spotify.com/v1/me/playlists', {name: name}, {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+      }
+    })
+
+    if (playlistIdResponse.status === 201) {
+      playlistID = playlistIdResponse.data.id
+    } else {
+      return({status: "failed", message: "Could not create playlist :("})
+    }
+
+    songIds = songIds.map((songId) => "spotify:track:"+songId)
+
+    const songsAddedResponse = await axios.post(`https://api.spotify.com/v1/playlists/${playlistID}/tracks`, {uris: songIds}, {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`
+      }
+    })
+
+    if (songsAddedResponse.status !== 201) return({status: "failed", message: "Error adding song to playlist"})
+    
+    return({status : "success", message: "Playlist successfully created!"})
 
   } catch(error) {
     console.error('Error:', error);

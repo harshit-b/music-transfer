@@ -6,7 +6,7 @@ import { useCookies } from "react-cookie";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import Spotify from "./Spotify"
-import AmazonMusic from "./AmazonMusic";
+// import AmazonMusic from "./AmazonMusic";
 import Youtube from "./Youtube";
 
 const Home = () => {
