@@ -86,16 +86,16 @@ module.exports.youtubePlaylists = async (req, res) => {
                 maxResults: 50,
             }, (error, response) => {
                 const playlists = response.data.items
-                if (error) res.status(500).json({error})
-                res.json({playlists})
+                if (error) res.status(500).json({message:error})
+                res.status(201).json({message:playlists, success: true})
             })
 
         } else {
-            res.status(500).json({ error: 'Failed to fetch access token' });
+            res.status(500).json({ message:'Failed to fetch access token'});
         }
     } catch (error) {
         console.error('Error:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({ message:'Internal server error' });
     }
 }
 
@@ -109,16 +109,16 @@ module.exports.checkIfLoggedInToYoutube = async(req, res) => {
       
       if (user) {
         if (user.youtubeTokens) {
-          res.json({userLoggedIntoYoutube: true})
+          res.status(200).json({message: "Logged into Youtube!", success : true})
         } else {
-          res.json({userLoggedIntoYoutube: false})
+          res.status(401).json({message: "Gotta login to youtube :)"})
         }
       } else {
-        res.status(500).json({ error: 'User not Found' });
+        res.status(500).json({ message: 'User not Found' });
       }
     } catch(error) {
       console.error('Error:', error);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ message: 'Internal server error' });
     }
   }
 
@@ -158,7 +158,7 @@ module.exports.checkIfLoggedInToYoutube = async(req, res) => {
 
     } catch(error) {
       console.error('Error:', error);
-      return ({status : "failed", message : error});
+      return ({status : "failed", message : "Internal Server Error!"});
     }
   }
 
@@ -176,7 +176,7 @@ module.exports.checkIfLoggedInToYoutube = async(req, res) => {
       return ({status : "success", message : songs})
     } catch(error) {
       console.error('Error:', error);
-      return ({status : "failed", message : error});
+      return ({status : "failed", message : "Internal Server Error!"});
     }
   }
 
@@ -246,7 +246,7 @@ module.exports.checkIfLoggedInToYoutube = async(req, res) => {
         }
       } catch(error) {
         console.error('Error:', error);
-        return ({status : "failed", message : error});
+        return ({status : "failed", message : "Internal Server Error!"});
       }
   }
 

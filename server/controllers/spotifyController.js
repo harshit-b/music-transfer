@@ -70,16 +70,16 @@ module.exports.checkIfLoggedInToSpotify = async(req, res) => {
     
     if (user) {
       if (user.spotifyAccessToken) {
-        res.json({userLoggedIntoSpotify: true})
+        res.status(201).json({message: "Logged into Spotify :)", success: true})
       } else {
-        res.json({userLoggedIntoSpotify: false})
+        res.status(401).json({message: "You gotta log in to Spotify!"})
       }
     } else {
-      res.status(500).json({ error: 'User not Found' });
+      res.status(500).json({ message: 'User not Found' });
     }
   } catch(error) {
     console.error('Error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ message: 'Internal server error' });
   }
 }
 
@@ -97,12 +97,13 @@ module.exports.spotifyUserPlaylists = async(req,res) => {
       //If access token expired, use refresh token to get new access token and replace 
       if (isAccessTokenExpired(user.spotifyTokenExpiresIn)) {
         //Call function to call api to fetch new access token by inputting refresh token
-        const {accessToken, expiresIn} = refreshToken(user.spotifyRefreshToken)
-        await User.findOneAndUpdate({_id: userId}, {spotifyAccessToken : accessToken, spotifyTokenExpiresIn : expiresIn});
+        const {newAccessToken, refreshToken, expiresIn} = await refreshSpotifyToken(user.spotifyRefreshToken)
+        accessToken = newAccessToken;
+        await User.findOneAndUpdate({_id: userId}, {spotifyAccessToken : newAccessToken, spotifyRefreshToken : refreshToken, spotifyTokenExpiresIn : expiresIn});
       } 
       // Now you can use `accessToken` to make authorized requests to Spotify's API
     } else {
-      res.status(500).json({ error: 'Failed to fetch access token' });
+      res.status(500).json({ message: 'Failed to fetch access token' });
     }
 
     // Make an API request to fetch the user's playlists information
@@ -117,13 +118,13 @@ module.exports.spotifyUserPlaylists = async(req,res) => {
       const userPlaylists = userPlaylistsResponse.data;
 
       // Redirect the user to the frontend with user playlist info in query parameters
-      res.json({userPlaylists});
+      res.status(201).json({message : userPlaylists, success : true});
     } else {
-      res.status(userPlaylistsResponse.status).json({ error: 'Failed to fetch user profile' });
+      res.status(userPlaylistsResponse.status).json({ message: 'Failed to fetch user profile' });
     }
   } catch (error) {
     console.error('Error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ message: 'Internal server error' });
   }
 }
 
@@ -139,12 +140,13 @@ module.exports.spotifyUserProfile = async (req, res) => {
     if (user) {
       accessToken = user.spotifyAccessToken;
       if (isAccessTokenExpired(user.spotifyTokenExpiresIn)) {
-        const {accessToken, expiresIn} = refreshToken(user.spotifyRefreshToken)
-        await User.findOneAndUpdate({_id: userId}, {spotifyAccessToken : accessToken, spotifyTokenExpiresIn : expiresIn});
+        const {newAccessToken, refreshToken, expiresIn} = await refreshSpotifyToken(user.spotifyRefreshToken)
+        accessToken = newAccessToken;
+        await User.findOneAndUpdate({_id: userId}, {spotifyAccessToken : newAccessToken, spotifyRefreshToken : refreshToken, spotifyTokenExpiresIn : expiresIn});
       } 
       // Now you can use `accessToken` to make authorized requests to Spotify's API
     } else {
-      res.status(500).json({ error: 'Failed to fetch access token' });
+      res.status(500).json({ message: 'Failed to fetch access token' });
     }
 
     // Make an API request to fetch the user's profile information
@@ -158,13 +160,13 @@ module.exports.spotifyUserProfile = async (req, res) => {
       // Extract user profile information
       const userProfile = userProfileResponse.data;
       // Redirect the user to the frontend with user info in query parameters
-      res.json({userProfile});
+      res.json({message : userProfile, success : true});
     } else {
-      res.status(userProfileResponse.status).json({ error: 'Failed to fetch user profile' });
+      res.status(userProfileResponse.status).json({ message: 'Failed to fetch user profile' });
     }
   } catch (error) {
     console.error('Error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ message: 'Internal server error' });
   }
 }
 
@@ -180,8 +182,9 @@ module.exports.spotifyPlaylistItems = async(playlistID, userId) => {
     if (user) {
       accessToken = user.spotifyAccessToken;
       if (isAccessTokenExpired(user.spotifyTokenExpiresIn)) {
-        const {accessToken, expiresIn} = refreshToken(user.spotifyRefreshToken)
-        await User.findOneAndUpdate({_id: userId}, {spotifyAccessToken : accessToken, spotifyTokenExpiresIn : expiresIn});
+        const {newAccessToken, refreshToken, expiresIn} = await refreshSpotifyToken(user.spotifyRefreshToken);
+        accessToken = newAccessToken;
+        await User.findOneAndUpdate({_id: userId}, {spotifyAccessToken : newAccessToken, spotifyRefreshToken : refreshToken, spotifyTokenExpiresIn : expiresIn});
       } 
       // Now you can use `accessToken` to make authorized requests to Spotify's API
     } else {
@@ -207,7 +210,7 @@ module.exports.spotifyPlaylistItems = async(playlistID, userId) => {
 
   } catch(error) {
     console.error('Error:', error);
-    return ({status : "failed", message : error});
+    return ({status : "failed", message : "Internal Server Error!"});
   }
 }
 
@@ -225,8 +228,9 @@ module.exports.spotifySeacrhSong = async(songs, userId) => {
     if (user) {
       accessToken = user.spotifyAccessToken;
       if (isAccessTokenExpired(user.spotifyTokenExpiresIn)) {
-        const {accessToken, expiresIn} = refreshToken(user.spotifyRefreshToken)
-        await User.findOneAndUpdate({_id: userId}, {spotifyAccessToken : accessToken, spotifyTokenExpiresIn : expiresIn});
+        const {newAccessToken, refreshToken, expiresIn} = await refreshSpotifyToken(user.spotifyRefreshToken)
+        accessToken = newAccessToken
+        await User.findOneAndUpdate({_id: userId}, {spotifyAccessToken : newAccessToken, spotifyRefreshToken : refreshToken, spotifyTokenExpiresIn : expiresIn});
       } 
       // Now you can use `accessToken` to make authorized requests to Spotify's API
     } else {
@@ -257,7 +261,7 @@ module.exports.spotifySeacrhSong = async(songs, userId) => {
     return ({status: "success", message: songIds});
   } catch(error) {
     console.error('Error:', error);
-    return ({status : "failed", message : error});
+    return ({status : "failed", message : "Internal Server Error"});
   }
 }
 
@@ -270,8 +274,9 @@ module.exports.spotifyCreatePlaylist = async (songIds, userId, name) => {
     if (user) {
       accessToken = user.spotifyAccessToken;
       if (isAccessTokenExpired(user.spotifyTokenExpiresIn)) {
-        const {accessToken, expiresIn} = refreshToken(user.spotifyRefreshToken)
-        await User.findOneAndUpdate({_id: userId}, {spotifyAccessToken : accessToken, spotifyTokenExpiresIn : expiresIn});
+        const {newAccessToken, refreshToken, expiresIn} = await refreshSpotifyToken(user.spotifyRefreshToken)
+        accessToken = newAccessToken
+        await User.findOneAndUpdate({_id: userId}, {spotifyAccessToken : newAccessToken, spotifyRefreshToken : refreshToken, spotifyTokenExpiresIn : expiresIn});
       } 
       // Now you can use `accessToken` to make authorized requests to Spotify's API
     } else {
@@ -305,7 +310,7 @@ module.exports.spotifyCreatePlaylist = async (songIds, userId, name) => {
 
   } catch(error) {
     console.error('Error:', error);
-    return ({status : "failed", message : error});
+    return ({status : "failed", message : "Internal Server Error!"});
   }
 }
 
@@ -319,7 +324,7 @@ function isAccessTokenExpired(spotifyTokenExpiresIn) {
 }
 
 // Helper function to refresh the access token using the refresh token
-async function refreshToken(refreshToken) {
+async function refreshSpotifyToken(refreshToken) {
   try {
     const tokenResponse = await axios.post('https://accounts.spotify.com/api/token', null, {
       params: {
@@ -332,7 +337,7 @@ async function refreshToken(refreshToken) {
     });
 
     if (tokenResponse.status === 200) {
-      return {accessToken : tokenResponse.data.access_token, expiresIn : tokenResponse.data.expires_in};
+      return {newAccessToken : tokenResponse.data.access_token, refreshToken : tokenResponse.data.refreshToken, expiresIn : Math.floor(Date.now() / 1000) + tokenResponse.data.expires_in};
     } else {
       return null;
     }

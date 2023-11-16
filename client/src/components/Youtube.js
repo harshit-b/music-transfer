@@ -35,7 +35,11 @@ const Youtube = (props) => {
             axios.get(
                 `http://localhost:4000/youtube/userLoggedIntoYoutube?userId=${props.userId}`)
                 .then((res) => {
-                    setUserLoggedIntoYoutube(res.data.userLoggedIntoYoutube)
+                    if (res.data.success) {
+                        setUserLoggedIntoYoutube(res.data.success)
+                        handleSuccess(res.data.message);
+                    }
+                    else handleError(res.data.message)
                 })
                 .catch((error) => {
                     console.error("Error determining if user logged into youtube: ", error)
@@ -48,11 +52,14 @@ const Youtube = (props) => {
             axios.get(
                 `http://localhost:4000/youtube/playlists?userId=${props.userId}`)
                 .then((res) => {
-                    setUserPlaylists(res.data.playlists);
-                    setPlaylistSelectedButton(new Array(res.data.playlists.length).fill(false))
+                    if (res.data.success) {
+                        setUserPlaylists(res.data.message);
+                        setPlaylistSelectedButton(new Array(res.data.message.length).fill(false));
+                    } else handleError(res.data.message);
                 })
                 .catch((error) => {
                     console.error('Error fetching user playlist:', error);
+                    handleError("Gotta login to youtube!");
                 });
         }
     }, [props.userId, userLoggedIntoYoutube])
