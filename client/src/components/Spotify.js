@@ -80,11 +80,17 @@ const Spotify = (props) => {
             axios.get(
                 `http://localhost:4000/spotify/userLoggedIntoSpotify?userId=${props.userId}`)
                 .then((res) => {
-                    setUserLoggedIntoSpotify(res.data.userLoggedIntoSpotify)
+                    if (res.data.success) {
+                        setUserLoggedIntoSpotify(res.data.success)
+                        handleSuccess(res.data.message)
+                    } else {
+                        handleError(res.data.message)
+                    }
                 })
-                .catch((error) => {
-                    console.error("Error determining if user logged into spotify: ", error)
-                });
+                // .catch((error) => {
+                //     console.error("Error determining if user logged into spotify: ", error)
+                //     handleError("Have to log in to spotify again :)")
+                // });
         }
         // Fetch playlist info and user profile info only when user has logged into spotify
         if (userLoggedIntoSpotify) {
@@ -92,21 +98,28 @@ const Spotify = (props) => {
             axios.get(
                 `http://localhost:4000/spotify/userPlaylists?userId=${props.userId}`)
                 .then((res) => {
-                    setUserPlaylists(res.data.userPlaylists);
-                    setPlaylistSelectedButton(new Array(res.data.userPlaylists.items.length).fill(false))
+                    if (res.data.success) {
+                        setUserPlaylists(res.data.message);
+                        setPlaylistSelectedButton(new Array(res.data.message.items.length).fill(false))
+                    } else {
+                        handleError(res.data.message)
+                    }
                 })
                 .catch((error) => {
                     console.error('Error fetching user playlist:', error);
+                    handleError("Have to log in to spotify again :)")
                 });
             
             //API call to backend to fetch user profile from backend ~ can be redundant later
             axios.get(
                 `http://localhost:4000/spotify/userProfile?userId=${props.userId}`)
                 .then((res) => {
-                    setUserProfile(res.data.userProfile);
+                    if (res.data.success) setUserProfile(res.data.message);
+                    else handleError(res.data.message);
                 })
                 .catch((error) => {
                     console.error('Error fetching user data:', error);
+                    handleError("Have to log in to spotify again :)")
                 });
         } 
     }, [props.userId, userLoggedIntoSpotify]);

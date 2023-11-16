@@ -93,12 +93,12 @@ module.exports.transferPlaylist = async (req, res) => {
 
         //Retrieving IDs of videos in youtube, the list is called playlistItemsIDs
         ({status, message} = await youtubePlaylistData(playlist, userId));
-        if (status !== "success") res.status(500).json({error: message});
+        if (status !== "success") res.status(500).json({message: message});
         const playlistItemIDs = message;
 
         //Retrieving song name and artist 
         ({status, message} = await youtubeSongs(playlistItemIDs));
-        if (status !== "success") res.status(500).json({error: message});
+        if (status !== "success") res.status(500).json({message: message});
         songs = message;
         
         //Fetch video metadata which would be needed to find song in spotify
@@ -109,7 +109,7 @@ module.exports.transferPlaylist = async (req, res) => {
         console.log(destinationApp, "-->", sourceApp);
 
         ({status, message} = await spotifyPlaylistItems(playlist, userId));
-        if (status !== "success") res.status(500).json({error: message});
+        if (status !== "success") res.status(500).json({message: message});
         songs = message
     }
 
@@ -119,7 +119,7 @@ module.exports.transferPlaylist = async (req, res) => {
         songIds = await youtubeSearchSongs(songs);
 
         ({status, message} = await youtubeCreatePlaylist(songIds, userId, name))
-        if (status !== "success") res.status(500).json({error: message});
+        if (status !== "success") res.status(500).json({message: message});
 
         break;
       
@@ -127,12 +127,12 @@ module.exports.transferPlaylist = async (req, res) => {
         //TODO: Search Songs, create playlist in spotify
         console.log("User selected ", destinationApp, "as the destination app");
         ({status, message} = await spotifySeacrhSong(songs, userId));
-        if (status !== "success") res.status(500).json({error: message});
+        if (status !== "success") res.status(500).json({message: message});
         songIds = message;
         console.log(songIds);
         
         ({status, message} = await spotifyCreatePlaylist(songIds, userId, name));
-        if (status !== "success") res.status(500).json({error: message});
+        if (status !== "success") res.status(500).json({message: message});
     }
 
     // const filter = {_id : userId}
@@ -142,9 +142,9 @@ module.exports.transferPlaylist = async (req, res) => {
     // await User.findOneAndUpdate(filter, newPlaylistsTransferred)
     res
       .status(201)
-      .json({message: ("Transfer Completed for" + name + "!"), success: true});
+      .json({message: ("Transfer Completed for" + name + "! "), success: true});
   } catch(error) {
     console.error('Error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ message: 'Internal server error' });
   }
 }
