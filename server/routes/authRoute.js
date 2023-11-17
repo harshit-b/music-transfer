@@ -1,7 +1,4 @@
 //All the routes to backend
-
-const { amazonCallback } = require("../controllers/amazonMusicController");
-const { amazonAuth } = require("../controllers/amazonMusicController");
 const { Signup, Login, userVerification, transferPlaylist } = require("../controllers/authController");
 const { spotifyCallback, spotifyAuth, spotifyUserProfile, spotifyUserPlaylists, checkIfLoggedInToSpotify } = require("../controllers/spotifyController");
 const { youtubeAuth, youtubeCallback, youtubePlaylists, checkIfLoggedInToYoutube, retrievePlaylistData } = require("../controllers/youtubeController");
@@ -18,10 +15,6 @@ router.get("/spotify/callback", spotifyCallback);
 router.get("/spotify/userProfile", spotifyUserProfile);
 router.get("/spotify/userPlaylists", spotifyUserPlaylists);
 router.get("/spotify/userLoggedIntoSpotify", checkIfLoggedInToSpotify);
-
-//Routes to handle amazon APIs
-router.get("/amazon/login", amazonAuth);
-router.get("/spotify/callback", amazonCallback);
 
 //Routes to handle youtube APIs
 router.get("/youtube/login", youtubeAuth);
