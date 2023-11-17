@@ -39,7 +39,7 @@ const Signup = () => {
     e.preventDefault();
     try {
       const {data} = await axios.post(
-        "http://localhost:4000/signup",
+        `${process.env.REACT_APP_BACKEND_URL}/signup`,
         {
           ...inputValue
         },

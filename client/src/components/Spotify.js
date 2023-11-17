@@ -11,7 +11,7 @@ const Spotify = (props) => {
     const [userProfile, setUserProfile] = useState(null);
     const [userPlaylists, setUserPlaylists] = useState(null);
 
-    const baseUrl = 'http://localhost:4000';
+    const baseUrl = process.env.REACT_APP_BACKEND_URL;
     const endpoint = '/spotify/login';
     const queryParam = `userId=${props.userId}`;
 
@@ -48,7 +48,7 @@ const Spotify = (props) => {
         try {
             playlistSelected.map(async (playlist) => {
                 const { data } = await axios.post(
-                    "http://localhost:4000/transferPlaylist",
+                    `${baseUrl}/transferPlaylist`,
                     {
                         userId : props.userId,
                         sourceApp : "Spotify",
@@ -78,7 +78,7 @@ const Spotify = (props) => {
             //API call to backend to check if user has logged into spotify or not
             //response: true or false 
             axios.get(
-                `http://localhost:4000/spotify/userLoggedIntoSpotify?userId=${props.userId}`)
+                `${baseUrl}/spotify/userLoggedIntoSpotify?userId=${props.userId}`)
                 .then((res) => {
                     if (res.data.success) {
                         setUserLoggedIntoSpotify(res.data.success)
@@ -96,7 +96,7 @@ const Spotify = (props) => {
         if (userLoggedIntoSpotify) {
             //API call to backend to fetch playlist info from backend
             axios.get(
-                `http://localhost:4000/spotify/userPlaylists?userId=${props.userId}`)
+                `${baseUrl}/spotify/userPlaylists?userId=${props.userId}`)
                 .then((res) => {
                     if (res.data.success) {
                         setUserPlaylists(res.data.message);
@@ -112,7 +112,7 @@ const Spotify = (props) => {
             
             //API call to backend to fetch user profile from backend ~ can be redundant later
             axios.get(
-                `http://localhost:4000/spotify/userProfile?userId=${props.userId}`)
+                `${baseUrl}/spotify/userProfile?userId=${props.userId}`)
                 .then((res) => {
                     if (res.data.success) setUserProfile(res.data.message);
                     else handleError(res.data.message);
@@ -122,7 +122,7 @@ const Spotify = (props) => {
                     handleError("Have to log in to spotify again :)")
                 });
         } 
-    }, [props.userId, userLoggedIntoSpotify]);
+    }, [props.userId, userLoggedIntoSpotify, baseUrl]);
 
     const handleLogin = async () => {
         window.location.href = url
