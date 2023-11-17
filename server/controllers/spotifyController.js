@@ -1,4 +1,4 @@
-const querystring = require('node:querystring')
+const querystring = require('querystring')
 const User = require("../models/userModel");
 const axios = require('axios');
 const client_id = "06d6e4c4bfd34e0ba2d776f2f18ffb09"

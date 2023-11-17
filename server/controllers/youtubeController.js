@@ -1,4 +1,3 @@
-const querystring = require('node:querystring')
 const {google} = require('googleapis')
 const YTMusic = require("ytmusic-api").default
 
@@ -21,8 +20,6 @@ const scopes = [
 var youtube = google.youtube('v3');
 
 const User = require("../models/userModel");
-const axios = require('axios');
-const { Console } = require('node:console');
 
 //Initiate OAuth flow - Spotify
 //Input in the query - userId: ID of the user in mongoDB database

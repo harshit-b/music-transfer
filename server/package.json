@@ -20,6 +20,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^7.5.0",
     "nodemon": "^3.0.1",
+    "querystring": "^0.2.1",
     "ytmusic-api": "^4.4.0"
   }
 }
