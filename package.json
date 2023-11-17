@@ -1,0 +1,25 @@
+{
+  "name": "musictransfer",
+  "version": "1.0.0",
+  "description": "Web App - MERN stack : Transfer music from one music app to another!",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "install-server": "cd server && npm install && npm install googleapis",
+    "start-server": "cd server && npm run start",
+    "install-client": "cd client && npm install",
+    "build-client": "cd client && npm run build",
+    "start-client": "cd client && npm run start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/harshit-b/music-transfer.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/harshit-b/music-transfer/issues"
+  },
+  "homepage": "https://github.com/harshit-b/music-transfer#readme"
+}
