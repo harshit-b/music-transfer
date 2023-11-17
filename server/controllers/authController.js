@@ -44,11 +44,11 @@ module.exports.Login = async (req, res, next) => {
     } 
     const token = createSecretToken(user._id);
     res.cookie("token", token, {
-      domain : process.env.DOMAIN,
+      // domain : process.env.DOMAIN,
       withCredentials: true,
       httpOnly: false,
-      sameSite: 'None',
-      secure: true,
+      // sameSite: 'None',
+      // secure: true,
     });
     res.status(201).json({ message: "User logged in successfully", success: true });
     next()

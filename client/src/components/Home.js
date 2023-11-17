@@ -31,14 +31,17 @@ const Home = () => {
         ? toast(`Hello ${user}`, {
             position: "top-right",
           })
-        : (removeCookie("token", {domain : process.env.REACT_APP_DOMAIN, sameSite:'none',  secure:true}), navigate("/login"));
+        : (removeCookie("token"), 
+              // {domain : process.env.REACT_APP_DOMAIN, sameSite:'none', secure:true}), 
+              navigate("/login"));
     };
     verifyCookie();
   }, [cookies, navigate, removeCookie]);
   
   const Logout = () => {
     console.log(process.env.REACT_APP_DOMAIN)
-    removeCookie("token", {domain : process.env.DOMAIN, sameSite:'none', secure:true});
+    removeCookie("token");
+    // , {domain : process.env.DOMAIN, sameSite:'none', secure:true});
     navigate("/signup");
   };
   
