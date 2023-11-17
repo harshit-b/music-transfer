@@ -40,8 +40,7 @@ const Home = () => {
   
   const Logout = () => {
     console.log(process.env.REACT_APP_DOMAIN)
-    removeCookie("token");
-    // , {domain : process.env.DOMAIN, sameSite:'none', secure:true});
+    removeCookie("token", {domain : process.env.REACT_APP_DOMAIN, sameSite:'None', secure:true});
     navigate("/signup");
   };
   
