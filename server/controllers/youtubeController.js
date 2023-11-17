@@ -108,7 +108,7 @@ module.exports.checkIfLoggedInToYoutube = async(req, res) => {
         if (user.youtubeTokens) {
           res.status(200).json({message: "Logged into Youtube!", success : true})
         } else {
-          res.status(401).json({message: "Gotta login to youtube :)"})
+          res.status(200).json({message: "Gotta login to youtube :)"})
         }
       } else {
         res.status(500).json({ message: 'User not Found' });
