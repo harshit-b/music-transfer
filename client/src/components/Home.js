@@ -31,13 +31,13 @@ const Home = () => {
         ? toast(`Hello ${user}`, {
             position: "top-right",
           })
-        : (removeCookie("token"), navigate("/login"));
+        : (removeCookie("token", {domain : process.env.DOMAIN}), navigate("/login"));
     };
     verifyCookie();
   }, [cookies, navigate, removeCookie]);
   
   const Logout = () => {
-    removeCookie("token");
+    removeCookie("token", {domain : process.env.DOMAIN});
     navigate("/signup");
   };
   
