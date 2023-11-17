@@ -8,7 +8,7 @@ const Youtube = (props) => {
     const [userPlaylists, setUserPlaylists] = useState(null)
     const [userLoggedIntoYoutube, setUserLoggedIntoYoutube] = useState(false);
 
-    const baseUrl = 'http://localhost:4000';
+    const baseUrl = process.env.REACT_APP_BACKEND_URL;
     const endpoint = '/youtube/login';
     const queryParam = `userId=${props.userId}`;
 
@@ -33,7 +33,7 @@ const Youtube = (props) => {
             //API call to backend to check if user has logged into youtube or not
             //response: true or false 
             axios.get(
-                `http://localhost:4000/youtube/userLoggedIntoYoutube?userId=${props.userId}`)
+                `${baseUrl}/youtube/userLoggedIntoYoutube?userId=${props.userId}`)
                 .then((res) => {
                     if (res.data.success) {
                         setUserLoggedIntoYoutube(res.data.success)
@@ -50,7 +50,7 @@ const Youtube = (props) => {
         if (userLoggedIntoYoutube) {
             //API call to backend to fetch playlist info from backend
             axios.get(
-                `http://localhost:4000/youtube/playlists?userId=${props.userId}`)
+                `${baseUrl}/youtube/playlists?userId=${props.userId}`)
                 .then((res) => {
                     if (res.data.success) {
                         setUserPlaylists(res.data.message);
@@ -62,7 +62,7 @@ const Youtube = (props) => {
                     handleError("Gotta login to youtube!");
                 });
         }
-    }, [props.userId, userLoggedIntoYoutube])
+    }, [props.userId, userLoggedIntoYoutube, baseUrl])
 
     const handlePlaylistSelected = (id, name, index) => {
         if (playlistSelected.indexOf(id) === -1) {
@@ -84,7 +84,7 @@ const Youtube = (props) => {
         try {
             playlistSelected.map(async(playlist) => {
                 const { data } = await axios.post(
-                    "http://localhost:4000/transferPlaylist",
+                    `${baseUrl}/transferPlaylist`,
                     {
                         userId : props.userId,
                         sourceApp : "Youtube",

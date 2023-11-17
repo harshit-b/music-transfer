@@ -79,10 +79,10 @@ module.exports.transferPlaylist = async (req, res) => {
 
     const user = await User.findOne({_id: userId}).exec();
 
-    if (user.playlistsTransferred.includes(playlist)) {
-      res.status(201).json({message: (name + "Playlist already transferred!"), success: true})
-      return 
-    }
+    // if (user.playlistsTransferred.includes(playlist)) {
+    //   res.status(201).json({message: (name + "Playlist already transferred!"), success: true})
+    //   return 
+    // }
 
     let status, message;
 
