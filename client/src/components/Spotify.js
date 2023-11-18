@@ -60,9 +60,9 @@ const Spotify = (props) => {
                 );
                 const {success, message} = data;
                 if (success) {
-                    handleSuccess(message + " " + playlist);
+                    handleSuccess(message);
                 } else {
-                    handleError(message + " " + playlist);
+                    handleError(message);
                 }
             })
         } catch (error) {

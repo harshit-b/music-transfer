@@ -2,7 +2,7 @@ const querystring = require('querystring')
 const User = require("../models/userModel");
 const axios = require('axios');
 const client_id = "06d6e4c4bfd34e0ba2d776f2f18ffb09"
-const redirect_uri = "http://localhost:4000/spotify/callback"
+const redirect_uri = `${process.env.BACKEND_URL}/spotify/callback`
 const client_secret = "b513d75dc33f4f78be7dbbfa852b13dc"
 
 //Initiate OAuth flow - Spotify

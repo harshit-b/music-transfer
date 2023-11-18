@@ -156,7 +156,7 @@ module.exports.transferPlaylist = async (req, res) => {
     // await User.findOneAndUpdate(filter, newPlaylistsTransferred)
     res
       .status(201)
-      .json({message: ("Transfer Completed for" + name + "! "), success: true});
+      .json({message: ("Transfer Completed for " + name + "! "), success: true});
   } catch(error) {
     console.error('Error:', error);
     res.status(500).json({ message: 'Internal server error' });

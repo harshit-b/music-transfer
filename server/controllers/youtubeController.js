@@ -9,7 +9,7 @@ const YTMusic = require("ytmusic-api").default
 const oauth2Client = new google.auth.OAuth2(
     '627567702093-scp9a3bsjhosfv1cep57oluvdvq4mvjv.apps.googleusercontent.com',
     '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',
-    'http://localhost:4000/youtube/callback'
+    `${process.env.BACKEND_URL}/youtube/callback`
 );
 
 // Access scopes for read-only Drive activity.
