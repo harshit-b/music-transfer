@@ -49,7 +49,7 @@ module.exports.spotifyCallback = async (req, res) => {
       const update = {spotifyAccessToken : accessToken, spotifyRefreshToken : refreshToken, spotifyTokenExpiresIn : tokenExpiresIn, spotifyLoggedIn : true }
       //Store Access Token and Refresh Token of user in database
       await User.findOneAndUpdate(filter, update);
-      res.redirect(`http://localhost:3000/`)
+      res.redirect(process.env.FRONTEND_URL)
 
     } else {
       res.status(tokenResponse.status).json({ error: 'Invalid token' });
