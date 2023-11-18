@@ -38,10 +38,13 @@ const Home = () => {
     verifyCookie();
   }, [cookies, navigate, removeCookie]);
   
-  const Logout = () => {
-    console.log(process.env.REACT_APP_DOMAIN)
-    removeCookie("token", {domain : process.env.REACT_APP_DOMAIN, sameSite:'None', secure:true});
-    navigate("/signup");
+  const Logout = async () => {
+    // console.log(process.env.REACT_APP_DOMAIN)
+    // removeCookie("token", {domain : process.env.REACT_APP_DOMAIN, sameSite:'None', secure:true});
+    axios.get(`${process.env.REACT_APP_BACKEND_URL}/clearCookie`, {withCredentials:true}).then((res) => {
+      console.log(res);
+      navigate("/signup");
+    });
   };
   
   return (

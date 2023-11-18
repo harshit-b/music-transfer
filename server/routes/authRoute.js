@@ -1,5 +1,5 @@
 //All the routes to backend
-const { Signup, Login, userVerification, transferPlaylist } = require("../controllers/authController");
+const { Signup, Login, userVerification, transferPlaylist, ClearCookie } = require("../controllers/authController");
 const { spotifyCallback, spotifyAuth, spotifyUserProfile, spotifyUserPlaylists, checkIfLoggedInToSpotify } = require("../controllers/spotifyController");
 const { youtubeAuth, youtubeCallback, youtubePlaylists, checkIfLoggedInToYoutube, retrievePlaylistData } = require("../controllers/youtubeController");
 const router = require("express").Router();
@@ -8,6 +8,7 @@ const router = require("express").Router();
 router.post("/signup", Signup);
 router.post("/login", Login);
 router.post("/", userVerification);
+router.get("/clearCookie", ClearCookie);
 
 //Routes to handle spotify APIs
 router.get("/spotify/login", spotifyAuth);

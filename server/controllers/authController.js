@@ -47,14 +47,24 @@ module.exports.Login = async (req, res, next) => {
       // domain : process.env.DOMAIN,
       withCredentials: true,
       httpOnly: false,
-      sameSite: 'None',
-      secure: true,
+      // sameSite: 'None',
+      // secure: true,
     });
     res.status(201).json({ message: "User logged in successfully", success: true });
     next()
   } catch (error) {
     console.error(error);
   }
+}
+
+module.exports.ClearCookie = (req, res) => {
+  console.log("cookie")
+  res.clearCookie("token", {withCredentials: true,
+    httpOnly: false,
+    // sameSite: 'None',
+    // secure: true,}
+});
+  res.send('Cookie Cleared Successfully')
 }
 
 module.exports.userVerification = (req, res) => {
