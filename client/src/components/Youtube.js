@@ -29,7 +29,7 @@ const Youtube = (props) => {
     }
 
     useEffect(()=> {
-        if (props.userId != null) {
+        if (userLoggedIntoYoutube === false) {
             //API call to backend to check if user has logged into youtube or not
             //response: true or false 
             axios.get(
@@ -62,7 +62,7 @@ const Youtube = (props) => {
                     handleError("Gotta login to youtube!");
                 });
         }
-    }, [props.userId, userLoggedIntoYoutube, baseUrl])
+    }, [userLoggedIntoYoutube])
 
     const handlePlaylistSelected = (id, name, index) => {
         if (playlistSelected.indexOf(id) === -1) {

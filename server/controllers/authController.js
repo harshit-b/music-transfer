@@ -107,12 +107,12 @@ module.exports.transferPlaylist = async (req, res) => {
 
         //Retrieving IDs of videos in youtube, the list is called playlistItemsIDs
         ({status, message} = await youtubePlaylistData(playlist, userId));
-        if (status !== "success") res.status(500).json({message: message});
+        if (status !== "success") throw new Error(error)
         const playlistItemIDs = message;
 
         //Retrieving song name and artist 
         ({status, message} = await youtubeSongs(playlistItemIDs));
-        if (status !== "success") res.status(500).json({message: message});
+        if (status !== "success") throw new Error(error)
         songs = message;
         
         //Fetch video metadata which would be needed to find song in spotify
@@ -123,7 +123,7 @@ module.exports.transferPlaylist = async (req, res) => {
         console.log(destinationApp, "-->", sourceApp);
 
         ({status, message} = await spotifyPlaylistItems(playlist, userId));
-        if (status !== "success") res.status(500).json({message: message});
+        if (status !== "success") throw new Error(error)
         songs = message
     }
 
@@ -133,7 +133,7 @@ module.exports.transferPlaylist = async (req, res) => {
         songIds = await youtubeSearchSongs(songs);
 
         ({status, message} = await youtubeCreatePlaylist(songIds, userId, name))
-        if (status !== "success") res.status(500).json({message: message});
+        if (status !== "success") throw new Error(error)
 
         break;
       
@@ -141,12 +141,12 @@ module.exports.transferPlaylist = async (req, res) => {
         //TODO: Search Songs, create playlist in spotify
         console.log("User selected ", destinationApp, "as the destination app");
         ({status, message} = await spotifySeacrhSong(songs, userId));
-        if (status !== "success") res.status(500).json({message: message});
+        if (status !== "success") throw new Error(error)
         songIds = message;
         console.log(songIds);
         
         ({status, message} = await spotifyCreatePlaylist(songIds, userId, name));
-        if (status !== "success") res.status(500).json({message: message});
+        if (status !== "success") throw new Error(error)
     }
 
     // const filter = {_id : userId}

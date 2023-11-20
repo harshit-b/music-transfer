@@ -30,7 +30,6 @@ const Spotify = (props) => {
     const handlePlaylistSelected = (id, name, index) => {
         if (playlistSelected.indexOf(id) === -1) {
             setPlaylistSelected([...playlistSelected, {playlistId: id, playlistName: name}])
-            
         } else {
             setPlaylistSelected(playlistSelected.filter(playlist => playlist !==id))
         }
@@ -46,6 +45,7 @@ const Spotify = (props) => {
 
     const handleSubmit = async() => {
         try {
+            handleSuccess("Transfer Started!")
             playlistSelected.map(async (playlist) => {
                 const { data } = await axios.post(
                     `${baseUrl}/transferPlaylist`,
@@ -74,7 +74,8 @@ const Spotify = (props) => {
 
     //TODO: Harshit - try to do all in one api call
     useEffect(() => {
-        if (props.userId != null) {
+        if (userLoggedIntoSpotify === false) {
+            // console.log("Entered function")
             //API call to backend to check if user has logged into spotify or not
             //response: true or false 
             axios.get(
@@ -122,7 +123,7 @@ const Spotify = (props) => {
                     handleError("Have to log in to spotify again :)")
                 });
         } 
-    }, [props.userId, userLoggedIntoSpotify, baseUrl]);
+    }, [userLoggedIntoSpotify]);
 
     const handleLogin = async () => {
         window.location.href = url

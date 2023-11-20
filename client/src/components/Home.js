@@ -14,29 +14,31 @@ const Home = () => {
   const [cookies, removeCookie] = useCookies([]);
   const [username, setUsername] = useState("");
   const[userId, setUserId] = useState(null);
+
+  const verifyCookie = async () => {
+    if (!cookies.token) {
+      navigate("/login");
+    }
+    const { data } = await axios.post(
+      `${process.env.REACT_APP_BACKEND_URL}`,
+      {},
+      { withCredentials: true }
+    );
+    const { status, user, userId } = data;
+    setUserId(userId);
+    setUsername(user);
+    return status
+      ? toast(`Hello ${user}`, {
+          position: "top-right",
+        })
+      : (removeCookie("token"), 
+            // {domain : process.env.REACT_APP_DOMAIN, sameSite:'none', secure:true}), 
+            navigate("/login"));
+  };
+
   useEffect(() => {
-    const verifyCookie = async () => {
-      if (!cookies.token) {
-        navigate("/login");
-      }
-      const { data } = await axios.post(
-        `${process.env.REACT_APP_BACKEND_URL}`,
-        {},
-        { withCredentials: true }
-      );
-      const { status, user, userId } = data;
-      setUserId(userId);
-      setUsername(user);
-      return status
-        ? toast(`Hello ${user}`, {
-            position: "top-right",
-          })
-        : (removeCookie("token"), 
-              // {domain : process.env.REACT_APP_DOMAIN, sameSite:'none', secure:true}), 
-              navigate("/login"));
-    };
     verifyCookie();
-  }, [cookies, navigate, removeCookie]);
+  }, []);
   
   const Logout = async () => {
     // console.log(process.env.REACT_APP_DOMAIN)
@@ -48,7 +50,9 @@ const Home = () => {
   };
   
   return (
-    <div style={{backgroundColor: 'black'}}>
+    <>
+    {(userId) ? (
+      <div style={{backgroundColor: 'black'}}>
       <div className="home_page">
         <h4>
           {" "}
@@ -65,6 +69,12 @@ const Home = () => {
       </div>
       <ToastContainer />
     </div>
+    ) : (
+      <div className="form-comp cfb">
+        Loading...
+      </div>
+    )}
+  </>
   );
 };
 

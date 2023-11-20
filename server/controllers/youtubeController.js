@@ -66,6 +66,7 @@ module.exports.youtubeCallback = async (req, res) => {
     }
 }
 
+// Fetching playlists from Youtube
 module.exports.youtubePlaylists = async (req, res) => {
     try {
         const userId = req.query.userId;
@@ -83,12 +84,12 @@ module.exports.youtubePlaylists = async (req, res) => {
                 maxResults: 50,
             }, (error, response) => {
                 const playlists = response.data.items
-                if (error) res.status(500).json({message:error})
+                if (error) throw new Error(error)
                 res.status(201).json({message:playlists, success: true})
             })
 
         } else {
-            res.status(500).json({ message:'Failed to fetch access token'});
+          throw new Error('Failed to fetch access token');
         }
     } catch (error) {
         console.error('Error:', error);
@@ -111,7 +112,7 @@ module.exports.checkIfLoggedInToYoutube = async(req, res) => {
           res.status(200).json({message: "Gotta login to youtube :)"})
         }
       } else {
-        res.status(500).json({ message: 'User not Found' });
+        throw new Error('User not Found');
       }
     } catch(error) {
       console.error('Error:', error);
@@ -167,8 +168,13 @@ module.exports.checkIfLoggedInToYoutube = async(req, res) => {
       let songs = []
       const ytmusic = await new YTMusic().initialize()
       for (const i in playlistItemIDs) {
-        const song = await ytmusic.getSong(playlistItemIDs[i])
-        songs.push({name : song.name, artists: song.artists})
+        try {
+          const song = await ytmusic.getSong(playlistItemIDs[i])
+          songs.push({name : song.name, artists: song.artists})
+        } catch {
+          console.log("Couldn't find this item : ", playlistItemIDs[i])
+          continue;
+        }
       }
       return ({status : "success", message : songs})
     } catch(error) {
