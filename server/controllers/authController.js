@@ -107,23 +107,21 @@ module.exports.transferPlaylist = async (req, res) => {
 
         //Retrieving IDs of videos in youtube, the list is called playlistItemsIDs
         ({status, message} = await youtubePlaylistData(playlist, userId));
-        if (status !== "success") throw new Error(error)
+        if (status !== "success") throw new Error(message)
         const playlistItemIDs = message;
 
         //Retrieving song name and artist 
         ({status, message} = await youtubeSongs(playlistItemIDs));
-        if (status !== "success") throw new Error(error)
+        if (status !== "success") throw new Error(message)
         songs = message;
         
-        //Fetch video metadata which would be needed to find song in spotify
-        // ytmusic.getSong(playlistItemIDs[0]).then(song => console.log(song))
         break;
 
       case "Spotify":
         console.log(destinationApp, "-->", sourceApp);
 
         ({status, message} = await spotifyPlaylistItems(playlist, userId));
-        if (status !== "success") throw new Error(error)
+        if (status !== "success") throw new Error(message)
         songs = message
     }
 
@@ -133,7 +131,7 @@ module.exports.transferPlaylist = async (req, res) => {
         songIds = await youtubeSearchSongs(songs);
 
         ({status, message} = await youtubeCreatePlaylist(songIds, userId, name))
-        if (status !== "success") throw new Error(error)
+        if (status !== "success") throw new Error(message)
 
         break;
       
@@ -141,12 +139,12 @@ module.exports.transferPlaylist = async (req, res) => {
         //TODO: Search Songs, create playlist in spotify
         console.log("User selected ", destinationApp, "as the destination app");
         ({status, message} = await spotifySeacrhSong(songs, userId));
-        if (status !== "success") throw new Error(error)
+        if (status !== "success") throw new Error(message)
         songIds = message;
         console.log(songIds);
         
         ({status, message} = await spotifyCreatePlaylist(songIds, userId, name));
-        if (status !== "success") throw new Error(error)
+        if (status !== "success") throw new Error(message)
     }
 
     // const filter = {_id : userId}

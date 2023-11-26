@@ -125,34 +125,38 @@ module.exports.checkIfLoggedInToYoutube = async(req, res) => {
   //Output: itemIDs of items in that playlist
   module.exports.youtubePlaylistItemIDs = async (playlist, userId) => {
     try {
-      console.log("Retrieving Playlist Info: ...", playlist);
-        // getting playlist details!
-        // playlistIDs.map((playlistID) => {
-        // })
-        let tokens = null;
-        const user = await User.findOne({_id: userId}).exec();
+      console.log("Retrieving Playlists Info: ...", playlist);
+      let tokens = null;
 
-        if (user) {
-          tokens = user.youtubeTokens
-          oauth2Client.setCredentials(tokens)
+      console.log("Retrieving access tokens of youtube from Mongo DB...")
+      const user = await User.findOne({_id: userId}).exec();
 
-          const response = await youtube.playlistItems.list({
-            auth: oauth2Client,
-            part: ["contentDetails"],
-            playlistId: playlist,
-            maxResults: 50,
-          })
+      if (user) {
+        tokens = user.youtubeTokens
 
-          if (response.status === 200) {
-            const playlistItemIDs = response.data.items.map((item) => item.contentDetails.videoId)
-            return ({status: "success", message : playlistItemIDs})
-          } else {
-            return ({status : "failed", messsage : "Could not fetch playlist list"})
-          }
-          
+        console.log("Setting OAuth 2 client credentials with token...")
+        oauth2Client.setCredentials(tokens)
+
+        console.log("Retrieving playlists items...")
+        const response = await youtube.playlistItems.list({
+          auth: oauth2Client,
+          part: ["contentDetails"],
+          playlistId: playlist,
+          maxResults: 50,
+        })
+
+        if (response.status === 200) {
+          console.log("Successfully retrieved playlists items!")
+          const playlistItemIDs = response.data.items.map((item) => item.contentDetails.videoId)
+          return ({status: "success", message : playlistItemIDs})
         } else {
-          return ({status : "failed", messsage : "User not found and failed to fetch access token"})
+          console.log(response)
+          return ({status : "failed", messsage : "Could not fetch playlist items list"})
         }
+        
+      } else {
+        return ({status : "failed", messsage : "User not found and failed to fetch access token"})
+      }
 
     } catch(error) {
       console.error('Error:', error);
@@ -165,6 +169,7 @@ module.exports.checkIfLoggedInToYoutube = async(req, res) => {
   //Output: name, artist of the songs in the playlist
   module.exports.youtubeSongs = async(playlistItemIDs) => {
     try {
+      console.log("Retrieving song name and artists of all songs in the playlist")
       let songs = []
       const ytmusic = await new YTMusic().initialize()
       for (const i in playlistItemIDs) {
@@ -176,6 +181,8 @@ module.exports.checkIfLoggedInToYoutube = async(req, res) => {
           continue;
         }
       }
+
+      console.log("Retrieved info of all songs in the playlist!")
       return ({status : "success", message : songs})
     } catch(error) {
       console.error('Error:', error);

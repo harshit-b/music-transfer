@@ -1,6 +1,39 @@
 import React, { useEffect, useState } from 'react';
 import axios from "axios";
 import { toast } from "react-toastify";
+import styled from "styled-components";
+
+const PlaylistBox = styled.div`
+    display: flex;
+    justify-content: center;
+    background: #5C5C5C;
+    height: fit-content;
+    text-align:center;
+    align-items: center;
+    margin: 1rem;
+    border-radius: 1em;
+    border-spacing: 1em;
+    padding: 1em;
+    @media (max-width: 768px) {
+        width: 40%;
+    }
+`
+const Button = styled.button`
+    cursor: pointer;
+    border-radius: 5rem;
+    border: none;
+    background: white;
+    color: black;
+    font-size: 17px;
+`
+const PlaylistButton = styled.button`
+    cursor: pointer;
+    border-radius: 5rem;
+    color: white;
+    margin: 3px;
+    font-size: 14px;
+    background: #1E1F22;
+`
 
 // userId: ID of the user in our database that has logged in 
 // userID is sent into the component by props
@@ -132,22 +165,24 @@ const Spotify = (props) => {
 // Display 'login with spotify if' userLoggedIntoSpotify is false
 // Populate user's spotify playlists if userLoggedIntoSpotify && userProfile && userPlaylists is true
     return (
-        <div className='playlist_box'>
+        // <div className='playlist_box'>
+        <PlaylistBox>
             {(userLoggedIntoSpotify && userProfile && userPlaylists) ? (
                 <div>
-                    <h5>Spotify, {userProfile.display_name}</h5>
-                    <h6>Playlists: </h6>
+                    <h5>{userProfile.display_name}</h5>
+                    <h5>Spotify Playlists: </h5>
                     {userPlaylists.items.map((playlist, index) => {
-                       return (<div key={index}><button style={{backgroundColor : playlistSelectedButton[index] ? "rgb(103, 255, 73)" : "rgb(32, 114, 59)"}} type="button" onClick={() => handlePlaylistSelected(playlist.id, playlist.name, index)}>{playlist.name}</button> <br/></div> )
+                       return (<div key={index}><PlaylistButton style={{border: playlistSelectedButton[index] ? "2px solid white" : "none"}} type="button" onClick={() => handlePlaylistSelected(playlist.id, playlist.name, index)}>{playlist.name}</PlaylistButton> <br/></div> )
                     })}
                     <br></br>
-                    <button style={{backgroundColor : "rgb(27, 73, 83)"}} onClick={handleSubmit}> TRANSFER </button>
+                    <Button  onClick={handleSubmit}> TRANSFER </Button>
                 </div>
             ) : (
                 <button onClick={handleLogin}>Login to Spotify</button>
       
             )}
-        </div>
+        </PlaylistBox>
+        // </div>
     )
 }
 

@@ -1,6 +1,39 @@
 import React, { useEffect, useState } from 'react'
 import axios from "axios";
 import { toast } from "react-toastify";
+import styled from "styled-components";
+
+const PlaylistBox = styled.div`
+    display: flex;
+    justify-content: center;
+    background: #5C5C5C;
+    height: fit-content;
+    text-align:center;
+    align-items: center;
+    margin: 1rem;
+    border-radius: 1em;
+    border-spacing: 1em;
+    padding: 1em;
+    @media (max-width: 768px) {
+        width: 40%;
+    }
+`
+const Button = styled.button`
+    cursor: pointer;
+    border-radius: 5rem;
+    border: none;
+    background: white;
+    color: black;
+    font-size: 17px;
+`
+const PlaylistButton = styled.button`
+    cursor: pointer;
+    border-radius: 5rem;
+    color: white;
+    margin: 3px;
+    font-size: 14px;
+    background: #1E1F22;
+`
 
 const Youtube = (props) => {
     const [playlistSelected, setPlaylistSelected] = useState([])
@@ -109,22 +142,21 @@ const Youtube = (props) => {
     }
 
     return (
-        <div className = 'playlist_box'> 
+        <PlaylistBox> 
             {(userLoggedIntoYoutube && userPlaylists) ? (
                 <div>
-                    <h5>Youtube</h5>
-                    <h6>Playlists: </h6>
+                    <h5>Youtube Playlists: </h5>
                     {userPlaylists.map((playlist, index) => {
-                       return (<div key={index}><button style={{backgroundColor : playlistSelectedButton[index] ? "rgb(103, 255, 73)" : "rgb(32, 114, 59)"}} type="button" onClick={() => handlePlaylistSelected(playlist.id, playlist.snippet.title, index)}>{playlist.snippet.title}</button> <br/></div> )
+                       return (<div key={index}><PlaylistButton style={{ border: playlistSelectedButton[index] ? "2px solid white" : "none"}} type="button" onClick={() => handlePlaylistSelected(playlist.id, playlist.snippet.title, index)}>{playlist.snippet.title}</PlaylistButton> <br/></div> )
                     })}
                     <br></br>
-                    <button style={{backgroundColor : "rgb(27, 73, 83)"}} onClick={handleSubmit}> TRANSFER </button>
+                    <Button onClick={handleSubmit}> TRANSFER </Button>
                 </div>
             ) : (
                 <button onClick={handleLogin}>Login to Youtube</button>
       
             )}
-        </div>
+        </PlaylistBox>
     )
 
 }
