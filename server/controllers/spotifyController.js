@@ -72,7 +72,7 @@ module.exports.checkIfLoggedInToSpotify = async(req, res) => {
       if (user.spotifyAccessToken) {
         res.status(201).json({message: "Logged into Spotify :)", success: true})
       } else {
-        res.status(401).json({message: "You gotta log in to Spotify!"})
+        res.status(200).json({message: "You gotta log in to Spotify!"})
       }
     } else {
       res.status(500).json({ message: 'User not Found' });
