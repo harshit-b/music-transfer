@@ -15,11 +15,11 @@ const MenuContainer = styled.div`
 
 const MenuItem = styled.div`
   color: black;
-  font-size: 28px;
+  font-size: 22px;
   font-family: 'Courier New', monospace;
   font-weight: bold;
   ${'' /* text-align: center; */}
-  padding: 20px;
+  padding: 11px;
   cursor: pointer; // Changes cursor to pointer to indicate clickable items
   transition: background-color 0.3s ease; // Smooth transition for hover effect
 

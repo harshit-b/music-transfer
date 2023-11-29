@@ -29,31 +29,6 @@ const Title = styled.h1`
 const Img = styled.img`
     height: 200px;
 `
-const Menu  = styled.ul`
-    display: flex;
-    flex-direction: row;
-    margin: auto;
-    padding-right: 20px;
-    display: none;
-    cursor: pointer;
-`
-const MenuItem = styled.li`
-    color: white;
-    list-style-type: none;
-    margin: auto;
-    padding: 10px;
-    font-size: 10px;
-    font-weight: 300;
-`
-const Bars = styled(BiMenu)`
-    position: absolute;
-    right: 0;
-    color: white;
-    padding: 5px;
-    height: 40px;
-    width: 40px;
-    cursor: pointer;
-`
 
 const Navbar = () => {
     const navigate = useNavigate();
