@@ -83,8 +83,8 @@ module.exports.youtubePlaylists = async (req, res) => {
                 mine: true,
                 maxResults: 50,
             }, (error, response) => {
-                const playlists = response.data.items
                 if (error) throw new Error(error)
+                const playlists = response.data.items
                 res.status(201).json({message:playlists, success: true})
             })
 
@@ -117,6 +117,36 @@ module.exports.checkIfLoggedInToYoutube = async(req, res) => {
     } catch(error) {
       console.error('Error:', error);
       res.status(500).json({ message: 'Internal server error' });
+    }
+  }
+
+  module.exports.youtubePlaylistItemIDsByLink = async (playlist) => {
+    try {
+      const apiKey = 'AIzaSyAwn4XrTfOPb891MvYquJd7fRGUNBi896k';
+
+      console.log("Retrieving playlists items...")
+
+      const response = await youtube.playlistItems.list({
+        auth: apiKey,
+        part: ["contentDetails"],
+        playlistId: playlist,
+        maxResults: 50,
+      })
+
+      if (response.status === 200) {
+        console.log("Successfully retrieved playlists items!")
+        const playlistItemIDs = response.data.items.map((item) => item.contentDetails.videoId)
+        return ({status: "success", message : playlistItemIDs})
+      } else {
+        console.log(response)
+        return ({status : "failed", messsage : "Could not fetch playlist items list"})
+      }
+    } catch(error) {
+      console.error(error);
+      if (error.status === 404) {
+        return ({status : "failed", message : "Playlist is either set to private or does not exist anymore :(", playlistNotFound:true})
+      }
+      return ({status : "failed", message : "Internal Server Error!"});
     }
   }
 

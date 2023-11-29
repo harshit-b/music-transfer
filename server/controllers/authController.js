@@ -3,8 +3,8 @@ const { createSecretToken } = require("../util/secretToken");
 const bcrypt = require("bcrypt");
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
-const { youtubePlaylistItemIDs: youtubePlaylistData, youtubeSongs, youtubeSearchSongs, youtubeCreatePlaylist } = require("./youtubeController");
-const { spotifyPlaylistItems, spotifySeacrhSong, spotifyCreatePlaylist } = require("./spotifyController");
+const { youtubePlaylistItemIDs, youtubeSongs, youtubeSearchSongs, youtubeCreatePlaylist, youtubePlaylistItemIDsByLink } = require("./youtubeController");
+const { spotifyPlaylistItems, spotifySeacrhSong, spotifyCreatePlaylist, spotifyPlaylistItemsByLink } = require("./spotifyController");
 
 module.exports.Signup = async (req, res, next) => {
   try {
@@ -89,7 +89,7 @@ module.exports.transferPlaylist = async (req, res) => {
     let songs = [];
     let songIds = [];
     console.log("Transfering Playlist Started: ...")
-    const { playlist, sourceApp, destinationApp, userId, name } = req.body;
+    const { playlist, sourceApp, destinationApp, userId, name, link } = req.body;
 
     const user = await User.findOne({_id: userId}).exec();
 
@@ -98,15 +98,25 @@ module.exports.transferPlaylist = async (req, res) => {
     //   return 
     // }
 
-    let status, message;
+    let status, message, playlistNotFound;
 
     //Retrieving Data from source app according to what is needed in destination app to search song and create playlist
     switch (sourceApp) {
       case "Youtube":
         console.log(sourceApp, " --> ", destinationApp);
 
-        //Retrieving IDs of videos in youtube, the list is called playlistItemsIDs
-        ({status, message} = await youtubePlaylistData(playlist, userId));
+        if (link){
+          //Retrieving IDs of videos in youtube, the list is called playlistItemsIDs
+          ({status, message, playlistNotFound} = await youtubePlaylistItemIDsByLink(playlist));
+          if (playlistNotFound) {
+            res.status(200).json({message: message})
+            return
+          }
+        }
+        else {
+          ({status, message} = await youtubePlaylistItemIDs(playlist, userId));
+        }
+
         if (status !== "success") throw new Error(message)
         const playlistItemIDs = message;
 
@@ -120,7 +130,11 @@ module.exports.transferPlaylist = async (req, res) => {
       case "Spotify":
         console.log(destinationApp, "-->", sourceApp);
 
-        ({status, message} = await spotifyPlaylistItems(playlist, userId));
+        ({status, message, playlistNotFound} = await spotifyPlaylistItems(playlist, userId));
+        if (playlistNotFound) {
+          res.status(200).json({message: message})
+          return
+        }
         if (status !== "success") throw new Error(message)
         songs = message
     }

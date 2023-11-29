@@ -210,6 +210,9 @@ module.exports.spotifyPlaylistItems = async(playlistID, userId) => {
 
   } catch(error) {
     console.error('Error:', error);
+    if (error.response.status === 404) {
+      return ({status : "failed", message : "Playlist is either set to private or does not exist anymore :(", playlistNotFound:true})
+    }
     return ({status : "failed", message : "Internal Server Error!"});
   }
 }

@@ -1,6 +1,11 @@
-import React from "react"
+import React, { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom";
+import { useCookies } from "react-cookie";
 import styled from "styled-components"
 import Navbar from "./Navbar"
+import { toast } from "react-toastify";
+import { ToastContainer} from "react-toastify";
+import axios from "axios";
 
 const MainArea = styled.div`
     display: flex;
@@ -58,24 +63,6 @@ const MusicProvider2 = styled.div`
     padding: 15px;
     overflow: hidden;`
 
-const Content = styled.button`
-    color: white;
-    font-size: 30px;
-    background: none;
-    border: none;
-    width: 100%;
-    height: fit-content;
-    text-align: center;
-    padding: 5px;
-    cursor: pointer;
-    &:hover {
-        background: #4F4D4D;
-    }
-    @media (max-width: 768px) {
-        flex-direction: row;
-        font-size: 20px;
-        margin: 25px;
-    }`
 const Input = styled.input`
     width: 75%;
     height: 30px;
@@ -132,7 +119,102 @@ const Start = styled.button`
         margin-left: 25%;
     }`
 
+const baseUrl = process.env.REACT_APP_BACKEND_URL;
+
 const Playlist = () => {
+    const navigate = useNavigate();
+    const [link, setLink] = useState('');
+    const [sourceApp, setSourceApp] = useState('')
+    const [playlistName, setPlaylistName] = useState('')
+    const [destinationApp, setDestinationApp] = useState('')
+    const [cookies, removeCookie] = useCookies([]);
+    const [userId, setUserId] = useState(null);
+
+    const verifyCookie = async () => {
+        if (!cookies.token) {
+          navigate("/login");
+        }
+        const { data } = await axios.post(
+          `${process.env.REACT_APP_BACKEND_URL}`,
+          {},
+          { withCredentials: true }
+        );
+        const { status, user, userId } = data;
+        setUserId(userId);
+        return status
+          ? toast(`Oooh ${user} is ready to transfer some playlists!!`, {
+              position: "top-right",
+            })
+          : (removeCookie("token"), 
+                // {domain : process.env.REACT_APP_DOMAIN, sameSite:'none', secure:true}), 
+                navigate("/login"));
+    };
+
+    useEffect(() => {
+        verifyCookie();
+      }, []);
+
+    const extractPlaylistIDYoutube = (url) => {
+        const match = url.match(/list=([a-zA-Z0-9_-]+)/);
+        return match ? match[1] : null;
+    }
+
+    const extractPlaylistIDSpotify = (url) => {
+        const match = url.match(/playlist\/([a-zA-z0-9]+)/);
+        return match ? match[1] : null;
+    }
+
+    const handleError = (err) => 
+    toast.error(err, {
+      position: "bottom-left",
+    });
+
+    const handleSuccess = (msg) => 
+    toast.success(msg, {
+      position: "bottom-right",
+    })
+
+    const handleSubmit = async() => {
+        if (!link) {
+            handleError("No link provided :(")
+        } else if (!playlistName) {
+            handleError("No Playlist name provided :(")
+        } else if (!sourceApp) {
+            handleError("Select a source music provider!")
+        } else if (!destinationApp) {
+            handleError("Select a target music provider!")
+        } else if (sourceApp === destinationApp) {
+            handleError("Cannot transfer to the same music provider :(");
+        } else {
+            let playlistID;
+            if (sourceApp === "Youtube") playlistID = extractPlaylistIDYoutube(link);
+            else if (sourceApp === "Spotify") playlistID = extractPlaylistIDSpotify(link)
+            if (!playlistID) handleError("Could not fetch playlist ID :(");
+            else {
+                handleSuccess("Transfer Started!")
+                const { data } = await axios.post(
+                    `${baseUrl}/transferPlaylist`,
+                    {
+                        userId : userId,
+                        sourceApp : sourceApp,
+                        destinationApp : destinationApp,
+                        playlist : playlistID,
+                        name: playlistName,
+                        link: true,
+                    },
+                    {withCredentials: true}
+                );
+                const {success, message} = data;
+                if (success) {
+                    handleSuccess(message);
+                } else {
+                    handleError(message);
+                }
+            }
+        } 
+        
+    }
+
     return (
         <MainArea>
             <Navbar/>
@@ -140,19 +222,37 @@ const Playlist = () => {
             <ServicesSection>
                 <Container>
                     <MusicProvider1>
-                        <Input type="text" placeholder="Link Here" />
+                        <Input type="text" placeholder="Link Here" value={link} onChange={(e) => setLink(e.target.value)}/>
+                        <select 
+                            value={sourceApp} 
+                            onChange={(e) => setSourceApp(e.target.value)} 
+                            style={{ width: '75%', height: '30px', borderRadius: '5px', background: '#1E1F22', color: 'white', border: 'none', marginTop: '10px' }}
+                        >
+                            <option value="">Select Music Provider</option>
+                            <option value="Spotify">Spotify</option>
+                            <option value="Youtube">YouTube Music</option>
+                        </select>
                     </MusicProvider1>
                     <Description>Enter a link to the playlist you want to transfer</Description>
                 </Container>
                 <Container>
                     <MusicProvider2>
-                        <Content>Amazon-Music</Content>
-                        <Content>Spotify</Content>
+                    <Input type="text" placeholder="Name for playlist" value={playlistName} onChange={(e) => setPlaylistName(e.target.value)} />
+                        <select 
+                            value={destinationApp} 
+                            onChange={(e) => setDestinationApp(e.target.value)} 
+                            style={{ width: '75%', height: '30px', borderRadius: '5px', background: '#1E1F22', color: 'white', border: 'none', marginTop: '10px' }}
+                        >
+                            <option value="">Select Music Provider</option>
+                            <option value="Spotify">Spotify</option>
+                            <option value="Youtube">YouTube Music</option>
+                        </select>
                     </MusicProvider2>
                     <Description>The music provider you are transferring to</Description>
                 </Container>
             </ServicesSection>
-            <Start>Start Transfer</Start>
+            <Start onClick={handleSubmit}>Start Transfer</Start>
+            <ToastContainer />
         </MainArea>
     )
 }

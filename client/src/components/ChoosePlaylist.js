@@ -41,7 +41,7 @@ const ChoosePlaylist = () => {
   const navigate = useNavigate();
   const [cookies, removeCookie] = useCookies([]);
   const [username, setUsername] = useState("");
-  const[userId, setUserId] = useState(null);
+  const [userId, setUserId] = useState(null);
 
   const verifyCookie = async () => {
     if (!cookies.token) {
