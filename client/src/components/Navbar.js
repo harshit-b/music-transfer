@@ -3,6 +3,7 @@ import styled from "styled-components"
 import {BiMenu} from "react-icons/bi"
 import logo from "../header-logo.png"
 import { useNavigate } from "react-router-dom";
+import MenuComponent from "./MenuComponent";
 
 const Nav = styled.nav`
     background: #393B40;
@@ -60,13 +61,7 @@ const Navbar = () => {
     return (
         <Nav>
             <Title onClick={() => navigate("/")}> <Img src={logo} alt="Logo" /> </Title>
-            <Bars />
-            <Menu>
-                <MenuItem>Account</MenuItem>
-                <MenuItem>Library Transfer</MenuItem>
-                <MenuItem>Playlist Transfer</MenuItem>
-                <MenuItem>Logout</MenuItem>
-            </Menu>
+            <MenuComponent />
         </Nav>
     )
 }
