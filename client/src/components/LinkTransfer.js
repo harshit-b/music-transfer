@@ -17,11 +17,11 @@ const MainArea = styled.div`
     justify-content: top;
 `
 const Title = styled.h1`
-    margin-top: 4em;
+    margin-top: 5em;
     color: white;
     font-size: 40px;
     @media (max-width: 768px) {
-        margin-top: 12vh;
+        margin-top: 20vh;
     }
 `
 const ServicesSection = styled.div`
@@ -109,6 +109,7 @@ const Start = styled.button`
     height: 80px;
     font-size: 20px;
     cursor: pointer;
+    margin-bottom: 2em;
     &:hover {
         background: #60C3EE;
         translate: scale(1.1);

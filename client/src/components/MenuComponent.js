@@ -11,6 +11,9 @@ const MenuContainer = styled.div`
     flex-direction: row;
     padding-right: 20px;
     cursor: pointer;
+    @media (max-width: 768px) {
+        display: none;
+    }
 `;
 
 const MenuItem = styled.div`

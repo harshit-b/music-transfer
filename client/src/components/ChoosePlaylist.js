@@ -25,7 +25,7 @@ const Span = styled.span`
   color: rgb(152, 157, 158);
 `
 const User = styled.h4`
-  margin-top: 4em;
+  margin-top: 12rem;
   color: white;
   font-size: 44px;
 `
@@ -34,7 +34,14 @@ const MusicApps = styled.div`
   flex-direction: row;
   gap: 1rem;
   color: white;
-  font-size: 30px
+  font-size: 30px;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  @media (max-width: 768px) {
+      flex-direction: column;
+  }
 `
 
 const ChoosePlaylist = () => {

@@ -11,7 +11,7 @@ const Span = styled.span`
     color: rgb(152, 157, 158);
 `
 const User = styled.h4`
-     margin-top: 9rem;
+     margin-top: 12rem;
      color: white;
      font-size: 44px;
 `

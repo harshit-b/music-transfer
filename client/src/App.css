@@ -185,7 +185,7 @@ input {
   }
    */
   
-  @media only screen and (max-width: 1200px){
+  /* @media only screen and (max-width: 1200px){
     .home_page{
       font-size: 1.5rem;
     }
@@ -193,4 +193,29 @@ input {
       padding: 0.6rem 1rem;
       font-size: 1.5rem;
     }
-  }
+  } */
+
+    /* Responsive layout for mobile */
+@media only screen and (max-width: 767px) {
+    .banner-side,
+    .form-side {
+        width: 100%;
+        right: 0;
+    }
+
+    .banner-side {
+        top: 0;
+        height: 30%;
+    }
+
+    .form-side {
+        top: 35%; /* Adjusted for the height of banner-side */
+        height: 70%;
+    }
+
+    .Container {
+      width: 90%;
+      height: 60%;
+      background-size: 130%;
+    }
+}
